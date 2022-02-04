@@ -374,7 +374,7 @@
 "@dialectlabs/monitor@file:../monitor":
   version "0.1.0"
   dependencies:
-    "@dialectlabs/web3" "file:../../../Library/Caches/Yarn/v6/npm-@dialectlabs-monitor-0.1.0-d7df83a4-6c08-4154-b6aa-e4e3db2b2d86-1644012961074/node_modules/@dialectlabs/protocol"
+    "@dialectlabs/web3" "file:../../../Library/Caches/Yarn/v6/npm-@dialectlabs-monitor-0.1.0-eb21a1ad-8dff-42ab-9c40-6a34f19a0094-1644015839130/node_modules/@dialectlabs/protocol"
     "@project-serum/anchor" "^0.18.0"
     "@solana/web3.js" "^1.27.0"
     luxon "^2.3.0"
@@ -1058,6 +1058,11 @@
   version "4.14.178"
   resolved "https://registry.yarnpkg.com/@types/lodash/-/lodash-4.14.178.tgz#341f6d2247db528d4a13ddbb374bcdc80406f4f8"
   integrity sha512-0d5Wd09ItQWH1qFbEyQ7oTQ3GZrMfth5JkbN3EvTKLXcHLRDSXeLnlvlOn0wvxVIwK5o2M8JzP/OWz7T3NRsbw==
+
+"@types/luxon@^2.0.9":
+  version "2.0.9"
+  resolved "https://registry.yarnpkg.com/@types/luxon/-/luxon-2.0.9.tgz#782a0edfa6d699191292c13168bd496cd66b87c6"
+  integrity sha512-ZuzIc7aN+i2ZDMWIiSmMdubR9EMMSTdEzF6R+FckP4p6xdnOYKqknTo/k+xXQvciSXlNGIwA4OPU5X7JIFzYdA==
 
 "@types/mime@^1":
   version "1.3.2"
