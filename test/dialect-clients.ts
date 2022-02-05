@@ -1,5 +1,5 @@
 import * as web3 from '@solana/web3.js';
-import { PublicKey } from '@solana/web3.js';
+import { Keypair, PublicKey } from '@solana/web3.js';
 import * as anchor from '@project-serum/anchor';
 import {
   createDialect,
@@ -11,6 +11,7 @@ import {
   sleep,
   Wallet_,
 } from '@dialectlabs/web3';
+import { DialectAccount } from '@dialectlabs/web3/lib/es';
 
 const MONITORING_SERVICE_PUBLIC_KEY = process.env
   .MONITORING_SERVICE_PUBLIC_KEY as string;
@@ -22,6 +23,10 @@ const connection = new web3.Connection(
 );
 
 const createClients = async (n: number): Promise<void> => {
+  console.log(
+    `Creating ${n} dialect clients with target ${MONITORING_SERVICE_PUBLIC_KEY}`,
+  );
+
   const clients = Array(n)
     .fill(0)
     .map((it) => web3.Keypair.generate());
@@ -37,32 +42,107 @@ const createClients = async (n: number): Promise<void> => {
 
   await fundKeypairs(program, clients);
 
-  clients.map(async (it) => {
-    const members: Member[] = [
-      {
-        publicKey: new PublicKey(MONITORING_SERVICE_PUBLIC_KEY),
-        scopes: [false, true],
-      },
-      {
-        publicKey: it.publicKey,
-        scopes: [true, true],
-      },
-    ];
-    const dialect = await createDialect(program, it, members);
-    process.on('SIGINT', async () => {
-      console.log('Deleting dialect');
-      deleteDialect(program, dialect, it);
-    });
-    while (true) {
-      const dialectAccount = await getDialectForMembers(program, members, it);
-      console.log(
-        it.publicKey.toBase58(),
-        dialectAccount.dialect.messages.map((it) => it.text),
-      );
-      await sleep(5000);
-    }
+  let dialectAccountsByPk: Record<
+    string,
+    { owner: Keypair; dialectAccount: DialectAccount }
+  > = Object.fromEntries(
+    await Promise.all(
+      clients.map(async (owner) => {
+        const members: Member[] = [
+          {
+            publicKey: new PublicKey(MONITORING_SERVICE_PUBLIC_KEY),
+            scopes: [false, true],
+          },
+          {
+            publicKey: owner.publicKey,
+            scopes: [true, true],
+          },
+        ];
+        const dialectAccount = await createDialect(program, owner, members);
+        return [dialectAccount.publicKey.toString(), { owner, dialectAccount }];
+      }),
+    ),
+  );
+
+  process.on('SIGINT', async () => {
+    const dialectAccounts = Object.values(dialectAccountsByPk);
+    console.log(`Deleting dialects for ${dialectAccounts.length} clients`);
+    await Promise.all(
+      dialectAccounts.map(({ owner, dialectAccount }) =>
+        deleteDialect(program, dialectAccount, owner),
+      ),
+    );
+    console.log(`Deleted dialects for ${dialectAccounts.length} clients`);
+    process.exit(0);
   });
-  console.log(`Started ${n} dialect clients`);
+
+  Object.values(dialectAccountsByPk).forEach(
+    ({
+      owner,
+      dialectAccount: {
+        dialect: { messages },
+      },
+    }) => {
+      if (messages.length > 0) {
+        console.log(
+          `Got ${
+            messages.length
+          } new messages for '${owner.publicKey.toBase58()}: ${JSON.stringify(
+            messages.map((it) => it.text),
+          )}`,
+        );
+      }
+    },
+  );
+  while (true) {
+    const dialectAccounts = Object.values(dialectAccountsByPk);
+    const dialectAccountsUpd: Record<
+      string,
+      { owner: Keypair; dialectAccount: DialectAccount }
+    > = Object.fromEntries(
+      await Promise.all(
+        dialectAccounts.map(
+          async ({
+            owner,
+            dialectAccount: {
+              dialect: { members },
+            },
+          }) => {
+            const dialectAccount = await getDialectForMembers(
+              program,
+              members,
+              owner,
+            );
+            return [
+              dialectAccount.publicKey.toString(),
+              { owner, dialectAccount },
+            ];
+          },
+        ),
+      ),
+    );
+    Object.values(dialectAccountsUpd).forEach(
+      ({ owner, dialectAccount: { publicKey, dialect: newDialect } }) => {
+        const {
+          dialectAccount: { dialect: oldDialect },
+        } = dialectAccountsByPk[publicKey.toString()];
+        const newMessages = newDialect.messages.filter(
+          ({ timestamp }) => timestamp > oldDialect.lastMessageTimestamp,
+        );
+        if (newMessages.length > 0) {
+          console.log(
+            `Got ${
+              newMessages.length
+            } new messages for '${owner.publicKey.toBase58()}: ${JSON.stringify(
+              newMessages.map((it) => it.text),
+            )}`,
+          );
+        }
+      },
+    );
+    dialectAccountsByPk = dialectAccountsUpd;
+    await sleep(1000);
+  }
 };
 
 const fundKeypairs = async (
@@ -85,7 +165,7 @@ const fundKeypairs = async (
 };
 
 const main = async (): Promise<void> => {
-  await createClients(1);
+  await createClients(2);
 };
 
 main();
