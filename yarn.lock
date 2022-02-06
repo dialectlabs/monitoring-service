@@ -371,20 +371,20 @@
     "@cspotcode/source-map-consumer" "0.8.0"
 
 "@dialectlabs/monitor@^0.1.5":
-  version "0.1.6"
-  resolved "https://npm.pkg.github.com/download/@dialectlabs/monitor/0.1.6/f110c34324ecbb03993cc2d2e21aef03d7daea3b5d26a2228e0899066a875903#81ee04e3f2c23b7a3e2bbbfdd51ca8469dfd3c55"
-  integrity sha512-JfjlkfPJWJ1Lx4S52ezTZPqpWdQ6RbUXRF7Uqs9W6RXcHD9jG+LjJkgL1R491K7uD0ocHt1mj4ftvTLsuphEnw==
+  version "0.1.9"
+  resolved "https://npm.pkg.github.com/download/@dialectlabs/monitor/0.1.9/c2e82116cd171d2ab00360d1a7ae40f2e7a8d7a24b09a5011cce9d501082583e#094699e12db0a1727fc886f1966bc6d1e5a760b6"
+  integrity sha512-BHf5tAsFiJ1Q3nPCb8N8qMj7XPn4aq1Gp6AAuWSZ+96TmxFb27pQaiuxZMXNc+VwP/6HFWpmmhdCzHAuJVcF3g==
   dependencies:
-    "@dialectlabs/web3" "0.1.2"
+    "@dialectlabs/web3" "^0.1.3"
     "@project-serum/anchor" "^0.18.0"
     "@solana/web3.js" "^1.27.0"
     luxon "^2.3.0"
     rxjs "^7.5.2"
 
-"@dialectlabs/web3@0.1.2", "@dialectlabs/web3@^0.1.2":
-  version "0.1.2"
-  resolved "https://npm.pkg.github.com/download/@dialectlabs/web3/0.1.2/c682ff2073571652595b50fc722b9cfbfc9f410a9eb2522252f21e76b3be7b22#5f791a92659f2e7bb3c91877417862920893be72"
-  integrity sha512-vJG7FO1ka3s2bP3sa2Zck7BlgwGMPAiecuyNUOOvFrbsQ/ztJ5Rn6rNFYFJPHYOwf9C9uCdvgndAZ+Y42CEMrA==
+"@dialectlabs/web3@^0.1.3":
+  version "0.1.3"
+  resolved "https://npm.pkg.github.com/download/@dialectlabs/web3/0.1.3/9ba731edf95d107b22e1cd8a587ffcdb80047d1f286b6ca62044bd1e31f3bb8f#442be20e3d9be34df60f626919f507e2ec4c99ed"
+  integrity sha512-hEY1F1vJaENHM/Tmuw10vzthwnlHqBdoaXpKu37GEtGB58ycZ7IJY6usWcEQb4MPnxw5HdUv0Q6vesveq4FdIA==
   dependencies:
     "@project-serum/anchor" "^0.18.2"
     "@solana/spl-token" "^0.1.8"
@@ -1016,7 +1016,12 @@
     "@types/estree" "*"
     "@types/json-schema" "*"
 
-"@types/estree@*", "@types/estree@^0.0.50":
+"@types/estree@*":
+  version "0.0.51"
+  resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.51.tgz#cfd70924a25a3fd32b218e5e420e6897e1ac4f40"
+  integrity sha512-CuPgU6f3eT/XgKKPqKd/gLZV1Xmvf1a2R5POBOGQa6uv82xpls89HU5zKeVoyR8XzHd1RGNOlQlvUe3CFkjWNQ==
+
+"@types/estree@^0.0.50":
   version "0.0.50"
   resolved "https://registry.yarnpkg.com/@types/estree/-/estree-0.0.50.tgz#1e0caa9364d3fccd2931c3ed96fdbeaa5d4cca83"
   integrity sha512-C6N5s2ZFtuZRj54k2/zyRhNDjJwwcViAM3Nbm8zjBpbqAdZ00mr0CFxvSKeO8Y/e03WVFLpQMdHYVfUd6SB+Hw==
