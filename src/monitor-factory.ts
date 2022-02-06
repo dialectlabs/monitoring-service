@@ -31,18 +31,21 @@ export class MonitorsFactoryPropsProvider {
       new Uint8Array(JSON.parse(PRIVATE_KEY as string)),
     );
     const wallet = Wallet_.embedded(keypair.secretKey);
-    const dialectConnection = new Connection(
-      process.env.RPC_URL || 'http://localhost:8899',
-      'recent',
-    );
+    const RPC_URL = process.env.RPC_URL || 'http://localhost:8899';
+    console.log('RPC url', RPC_URL);
+    const dialectConnection = new Connection(RPC_URL, 'recent');
     const dialectProvider = new Provider(
       dialectConnection,
       wallet,
       Provider.defaultOptions(),
     );
+    // @ts-ignore
+    const NETWORK_NAME: 'devnet' | 'localnet' =
+      process.env.NETWORK_NAME ?? 'localnet';
+    console.log('Network name', NETWORK_NAME);
     const dialectProgram = new Program(
       idl as Idl,
-      new PublicKey(programs['localnet'].programAddress),
+      new PublicKey(programs[NETWORK_NAME].programAddress),
       dialectProvider,
     );
     return {
