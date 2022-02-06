@@ -6,9 +6,9 @@ import {
   PollableDataSource,
   SubscriberEvent,
 } from '@dialectlabs/monitor';
-import { MonitorFactoryProps } from '@dialectlabs/monitor/src/monitor';
+import { MonitorFactoryProps } from '@dialectlabs/monitor';
 import { Connection, Keypair, PublicKey } from '@solana/web3.js';
-import { idl, programs, Wallet_ } from '@dialectlabs/web3/lib/es';
+import { idl, programs, Wallet_ } from '@dialectlabs/web3';
 import { Idl, Program, Provider } from '@project-serum/anchor';
 import { Duration } from 'luxon';
 
