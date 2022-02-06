@@ -4,20 +4,9 @@
 $ yarn
 ```
 
-## Running the app
-
-```bash
-# development
-$ yarn start
-
-# watch mode
-$ yarn start:dev
-
-# production mode
-$ yarn start:prod
 ```
 
-## Test
+## Running the app
 
 ### generate a new keypair for monitoring monitoring service and fund it
 
@@ -39,4 +28,30 @@ PRIVATE_KEY=$(cat ${your_path}/monitoring-service-dev-local-key.json) yarn start
 ```
 export your_path=~/projects/dialect
 MONITORING_SERVICE_PUBLIC_KEY=$(cat ${your_path}/monitoring-service-dev-local-key.pub) ts-node test/dialect-clients.ts
+```
+
+## Running the app in docker
+
+### build image
+
+1. brew install jq
+2. run commands
+```bash
+./docker-build.sh
+```
+
+### run container locally
+1. run commands
+```bash
+export your_path=~/projects/dialect
+docker run --name dialectlabs_monitoring-service -e PRIVATE_KEY=$(cat ${your_path}/monitoring-service-dev-local-key.json) dialectlab/monitoring-service:latest 
+```
+
+### publish image
+
+1. brew install jq
+2. docker login
+3. run commands
+```bash
+docker-publish.sh
 ```
