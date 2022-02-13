@@ -1,7 +1,7 @@
 # Monitoring service
 
-A reference implementation of monitor from https://github.com/dialectlabs/monitor.
-The implementation is used to power notifications on a dialect website https://devnet.dialect.to/
+A reference implementation of @dialectlabs/monitor powering notifications on https://devnet.dialect.to/.
+See https://github.com/dialectlabs/monitor for details.
 
 ## Development
 
@@ -41,6 +41,7 @@ solana-keygen new --outfile ${your_path}/monitoring-service-dev-local-key.json
 solana-keygen pubkey ${your_path}/monitoring-service-dev-local-key.json > ${your_path}/monitoring-service-dev-local-key.pub
 solana -k ${your_path}/monitoring-service-dev-local-key.json airdrop 5
 ```
+
 #### Step 2. Start server
 
 ```shell

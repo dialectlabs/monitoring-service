@@ -1,8 +1,8 @@
 {
   "name": "monitoring-service",
   "version": "0.0.2",
-  "description": "",
-  "author": "",
+  "description": "A reference implementation of @dialectlabs/monitor powering notifications on https://devnet.dialect.to/",
+  "author": "dialectlabs",
   "private": true,
   "license": "MIT",
   "scripts": {
