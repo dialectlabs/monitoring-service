@@ -21,7 +21,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@dialectlabs/monitor": "^0.1.9",
+    "@dialectlabs/monitor": "^0.1.21",
     "@dialectlabs/web3": "^0.1.4",
     "@jet-lab/jet-engine": "0.2.1",
     "@nestjs/common": "^8.0.0",
