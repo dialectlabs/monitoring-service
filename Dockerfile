@@ -4,8 +4,7 @@ WORKDIR /app
 
 RUN npm i -g rimraf
 
-COPY package.json yarn.lock .npmrc ./
-RUN --mount=type=secret,id=github,dst=/root/.npmrc yarn
+COPY package.json yarn.lock ./
 
 COPY . ./
 RUN yarn build
