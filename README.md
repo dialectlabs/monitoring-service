@@ -9,7 +9,7 @@ See https://github.com/dialectlabs/monitor for details.
 
 - Git
 - Yarn (<2)
-- Nodejs (>=15.10 <17)
+- Nodejs (>=16.10.0 <17)
 
 ### Getting started with monitor development in this repo
 
