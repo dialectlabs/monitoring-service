@@ -43,7 +43,7 @@ spec:
             secretKeyRef:
               key: DIALECT_PRIVATE_KEY
               name: env-vars
-        image: dialectlab/monitoring-service:0.1.2
+        image: dialectlab/monitoring-service:0.0.2
         imagePullPolicy: Always
         name: monitoring-service
         resources: {}
