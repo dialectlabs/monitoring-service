@@ -370,10 +370,10 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@dialectlabs/monitor@^0.1.5":
-  version "0.1.9"
-  resolved "https://npm.pkg.github.com/download/@dialectlabs/monitor/0.1.9/c2e82116cd171d2ab00360d1a7ae40f2e7a8d7a24b09a5011cce9d501082583e#094699e12db0a1727fc886f1966bc6d1e5a760b6"
-  integrity sha512-BHf5tAsFiJ1Q3nPCb8N8qMj7XPn4aq1Gp6AAuWSZ+96TmxFb27pQaiuxZMXNc+VwP/6HFWpmmhdCzHAuJVcF3g==
+"@dialectlabs/monitor@^0.1.9":
+  version "0.1.19"
+  resolved "https://registry.yarnpkg.com/@dialectlabs/monitor/-/monitor-0.1.19.tgz#2dd364cc5575b3900da55bb384c6b300389288c5"
+  integrity sha512-IXaR73Lui3SxJStLmJGxNDVAkzHfJ5r4CQypdmzyftkpQEVTHAo11SshElv0aCWS7POckoCJSxb1nghP9CAsJQ==
   dependencies:
     "@dialectlabs/web3" "^0.1.3"
     "@project-serum/anchor" "^0.18.0"
@@ -387,6 +387,20 @@
   integrity sha512-hEY1F1vJaENHM/Tmuw10vzthwnlHqBdoaXpKu37GEtGB58ycZ7IJY6usWcEQb4MPnxw5HdUv0Q6vesveq4FdIA==
   dependencies:
     "@project-serum/anchor" "^0.18.2"
+    "@solana/spl-token" "^0.1.8"
+    "@solana/web3.js" "^1.22.0"
+    bytebuffer "^5.0.1"
+    copy-to-clipboard "^3.3.1"
+    ed2curve "0.3.0"
+    js-sha256 "^0.9.0"
+    tweetnacl "1.0.3"
+
+"@dialectlabs/web3@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@dialectlabs/web3/-/web3-0.1.4.tgz#856863065d6ca560e77236b2d7c546f7ebf353eb"
+  integrity sha512-TgPHNHhha7ip+2H9ZwENgVU3ZM2ldIaLpTNUh55oKf662vbe/NmRRrylazJzSqlTIq8AzhtfycLW76zK61HlRA==
+  dependencies:
+    "@project-serum/anchor" "0.18.2"
     "@solana/spl-token" "^0.1.8"
     "@solana/web3.js" "^1.22.0"
     bytebuffer "^5.0.1"
@@ -772,10 +786,10 @@
     consola "^2.15.0"
     node-fetch "^2.6.1"
 
-"@project-serum/anchor@^0.11.1":
-  version "0.11.1"
-  resolved "https://registry.yarnpkg.com/@project-serum/anchor/-/anchor-0.11.1.tgz#155bff2c70652eafdcfd5559c81a83bb19cec9ff"
-  integrity sha512-oIdm4vTJkUy6GmE6JgqDAuQPKI7XM4TPJkjtoIzp69RZe0iAD9JP2XHx7lV1jLdYXeYHqDXfBt3zcq7W91K6PA==
+"@project-serum/anchor@0.18.2", "@project-serum/anchor@^0.18.0", "@project-serum/anchor@^0.18.2":
+  version "0.18.2"
+  resolved "https://registry.yarnpkg.com/@project-serum/anchor/-/anchor-0.18.2.tgz#0f13b5c2046446b7c24cf28763eec90febb28485"
+  integrity sha512-uyjiN/3Ipp+4hrZRm/hG18HzGLZyvP790LXrCsGO3IWxSl28YRhiGEpKnZycfMW94R7nxdUoE3wY67V+ZHSQBQ==
   dependencies:
     "@project-serum/borsh" "^0.2.2"
     "@solana/web3.js" "^1.17.0"
@@ -792,10 +806,10 @@
     snake-case "^3.0.4"
     toml "^3.0.0"
 
-"@project-serum/anchor@^0.18.0", "@project-serum/anchor@^0.18.2":
-  version "0.18.2"
-  resolved "https://registry.yarnpkg.com/@project-serum/anchor/-/anchor-0.18.2.tgz#0f13b5c2046446b7c24cf28763eec90febb28485"
-  integrity sha512-uyjiN/3Ipp+4hrZRm/hG18HzGLZyvP790LXrCsGO3IWxSl28YRhiGEpKnZycfMW94R7nxdUoE3wY67V+ZHSQBQ==
+"@project-serum/anchor@^0.11.1":
+  version "0.11.1"
+  resolved "https://registry.yarnpkg.com/@project-serum/anchor/-/anchor-0.11.1.tgz#155bff2c70652eafdcfd5559c81a83bb19cec9ff"
+  integrity sha512-oIdm4vTJkUy6GmE6JgqDAuQPKI7XM4TPJkjtoIzp69RZe0iAD9JP2XHx7lV1jLdYXeYHqDXfBt3zcq7W91K6PA==
   dependencies:
     "@project-serum/borsh" "^0.2.2"
     "@solana/web3.js" "^1.17.0"
