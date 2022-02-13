@@ -1,43 +1,28 @@
 import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
-import { DialectDataSource } from './dialect-data-source';
-import { MonitorFactory } from './monitor-factory';
-import {
-  Monitors,
-  EventDetectionPipeline,
-  Operators,
-  PipeLogLevel,
-  SubscriberEvent,
-} from '@dialectlabs/monitor';
-
-export const welcomeMessagePipeline: EventDetectionPipeline<SubscriberEvent> = (
-  source,
-) =>
-  source
-    .pipe(Operators.Utility.log(PipeLogLevel.INFO))
-    .pipe(
-      Operators.Transform.filter(
-        ({ parameterData: { data } }) => data === 'added',
-      ),
-    )
-    .pipe(
-      Operators.Event.info(
-        'Welcome',
-        () =>
-          `Welcome to Dialect. This is an example of how you can receive notifications for events that happen on chain. In this case, the creation of a notification thread with Dialect.`,
-      ),
-    );
+import { Monitors, Pipelines } from '@dialectlabs/monitor';
+import { DialectConnection } from './dialect-connection';
 
 @Injectable()
 export class MonitoringService implements OnModuleInit, OnModuleDestroy {
-  constructor(
-    private readonly monitorFactory: MonitorFactory,
-    private readonly dialectDataSource: DialectDataSource,
-  ) {}
+  constructor(private readonly dialectConnection: DialectConnection) {}
 
   onModuleInit() {
-    const monitor = this.monitorFactory.createSubscriberEventMonitor([
-      welcomeMessagePipeline,
-    ]);
+    const monitor = Monitors.builder({
+      monitorKeypair: this.dialectConnection.getKeypair(),
+      dialectProgram: this.dialectConnection.getProgram(),
+    })
+      .subscriberEvents()
+      .transform({
+        keys: ['state'],
+        pipelines: [
+          Pipelines.notifyNewSubscribers({
+            messageBuilder: () =>
+              'Welcome to Dialect. This is an example of how you can receive notifications for events that happen on chain. In this case, the creation of a notification thread with Dialect.',
+          }),
+        ],
+      })
+      .dispatch('unicast')
+      .build();
     monitor.start();
   }
 

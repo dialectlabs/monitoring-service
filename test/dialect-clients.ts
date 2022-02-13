@@ -22,6 +22,7 @@ const connection = new web3.Connection(
   'recent',
 );
 
+const DIALECT_PROGRAM_ADDRESS = programs[NETWORK_NAME].programAddress;
 const createClients = async (n: number): Promise<void> => {
   console.log(
     `Creating ${n} dialect clients with target ${MONITORING_SERVICE_PUBLIC_KEY}`,
@@ -37,7 +38,7 @@ const createClients = async (n: number): Promise<void> => {
   );
   const program = new anchor.Program(
     idl as anchor.Idl,
-    new anchor.web3.PublicKey(programs[NETWORK_NAME].programAddress),
+    new anchor.web3.PublicKey(DIALECT_PROGRAM_ADDRESS),
   );
 
   await fundKeypairs(program, clients);
