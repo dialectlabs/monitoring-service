@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "description": "A reference implementation of a service running @dialectlabs/monitor.",
   "author": "dialectlabs",
-  "private": true,
+  "private": false,
   "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",
