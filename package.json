@@ -1,5 +1,5 @@
 {
-  "name": "monitoring-service",
+  "name": "@dialectlabs/monitoring-service",
   "version": "0.1.0",
   "description": "A reference implementation of a service running @dialectlabs/monitor.",
   "author": "dialectlabs",
