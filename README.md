@@ -1,7 +1,7 @@
 # Monitoring service
 
-A reference implementation of @dialectlabs/monitor powering notifications on https://devnet.dialect.to/.
-See https://github.com/dialectlabs/monitor for details.
+A reference implementation of a service running `@dialectlabs/monitor`.
+See https://github.com/dialectlabs/monitor for details on the notifications module.
 
 ## Development
 
