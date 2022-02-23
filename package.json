@@ -4,7 +4,7 @@
   "description": "A reference implementation of a service running @dialectlabs/monitor.",
   "author": "dialectlabs",
   "private": false,
-  "license": "MIT",
+  "license": "Apache-2.0",
   "scripts": {
     "prebuild": "rimraf dist",
     "build": "nest build",
