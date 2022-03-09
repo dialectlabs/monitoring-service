@@ -3,10 +3,6 @@ import { Idl, Program, Provider } from '@project-serum/anchor';
 import { idl, programs, Wallet_ } from '@dialectlabs/web3';
 
 export abstract class DialectConnection {
-  abstract getKeypair(): Keypair;
-
-  abstract getProgram(): Program;
-
   static initialize(): DialectConnection {
     const PRIVATE_KEY = process.env.PRIVATE_KEY;
     const keypair: Keypair = Keypair.fromSecretKey(
@@ -33,6 +29,10 @@ export abstract class DialectConnection {
     );
     return new DialectConnectionImpl(keypair, program);
   }
+
+  abstract getKeypair(): Keypair;
+
+  abstract getProgram(): Program;
 }
 
 export class DialectConnectionImpl {
