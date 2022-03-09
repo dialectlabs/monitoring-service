@@ -10,6 +10,7 @@ See https://github.com/dialectlabs/monitor for details on the notifications modu
 - Git
 - Yarn (<2)
 - Nodejs (>=16.10.0 <17)
+- Docker
 
 ### Getting started with monitor development in this repo
 
@@ -25,6 +26,13 @@ npm install
 
 ```shell
 yarn
+```
+
+#### Start database and apply migrations
+
+```shell
+docker compose up -d
+./prisma/migrate-db-dev-local.sh
 ```
 
 #### Run a solana validator node with dialect program
