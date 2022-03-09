@@ -1,0 +1,23 @@
+services:
+  postgres:
+    container_name: postgres_dialect
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: dialect
+      PGDATA: /data/postgres
+    volumes:
+      - postgres_dialect:/data/postgres
+    ports:
+      - '15432:5432'
+    networks:
+      - dialectnet
+    restart: unless-stopped
+
+networks:
+  dialectnet:
+    driver: bridge
+
+volumes:
+  postgres_dialect:
