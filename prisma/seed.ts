@@ -2,17 +2,53 @@ import { PrismaClient } from '@prisma/client';
 
 async function seedDev() {
   const prisma = new PrismaClient();
-  return prisma.userExample.upsert({
+  const wallet = await prisma.wallet.upsert({
     where: {
       id: '44a34c33-9938-49f3-935c-dcbf35d1b5a1',
     },
     create: {
       id: '44a34c33-9938-49f3-935c-dcbf35d1b5a1',
-      name: 'Example user name',
-      phoneNumber: '+111111111',
+      publicKey: 'D1ALECTfeCZt9bAbPWtJk7ntv24vDYGPmyS7swp7DY5h',
     },
     update: {},
   });
+  const address = await prisma.address.upsert({
+    where: {
+      id: '44a34c33-9938-49f3-935c-dcbf35d1b5a2',
+    },
+    create: {
+      id: '44a34c33-9938-49f3-935c-dcbf35d1b5a2',
+      key: 'email',
+      value: 'hello@dialect.to',
+      verified: true,
+      walletId: wallet.id, // TODO: Set wallet instead
+    },
+    update: {},
+  });
+  const dapp = await prisma.dapp.upsert({
+    where: {
+      id: '44a34c33-9938-49f3-935c-dcbf35d1b5a3',
+    },
+    create: {
+      id: '44a34c33-9938-49f3-935c-dcbf35d1b5a3',
+      name: 'dialect',
+    },
+    update: {},
+  })
+  const dappAddress = await prisma.dappAddress.upsert({
+    where: {
+      id: '44a34c33-9938-49f3-935c-dcbf35d1b5a4',
+    },
+    create: {
+      id: '44a34c33-9938-49f3-935c-dcbf35d1b5a4',
+      dappId: dapp.id,
+      addressId: address.id,
+      enabled: true,
+    },
+    update: {},
+  })
+  
+  return;
 }
 
 async function main() {

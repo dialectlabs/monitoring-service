@@ -1,9 +1,10 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get, Param } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
+import { DappAddress } from "@prisma/client";
 import { PrismaService } from "../prisma/prisma.service";
-import { DappWeb2AddressDto } from "./wallet.controller.dto";
+import { DappAddressDto } from "./wallet.controller.dto";
 
-@ApiTags('Wallet')
+@ApiTags('Wallets')
 @Controller({
   path: 'wallets',
   version: '0',
@@ -11,20 +12,20 @@ import { DappWeb2AddressDto } from "./wallet.controller.dto";
 export class WalletController {
   constructor(private readonly prisma: PrismaService) {}
 
-  @Get(':public_key/:dapp/dqpp_web2_addresses')
-  async get(public_key: string, dapp: string): Promise<DappWeb2AddressDto[]> {
-    const dappWeb2Addresses = await this.prisma.dappWeb2Address.findMany({
+  @Get(':public_key/:dapp/addresses')
+  async get(@Param('public_key') public_key: string, @Param('dapp') dapp: string): Promise<DappAddressDto[]> {
+    const dappAddresses = await this.prisma.dappAddress.findMany({
       where: {
         AND: [
           {
             dapp: {
               name: {
                 equals: dapp,
-              },
-            },
+              }
+            }
           },
           {
-            web2Address: {
+            address: {
               wallet: {
                 publicKey: {
                   equals: public_key,
@@ -35,15 +36,15 @@ export class WalletController {
         ],
       },
       include: {
-        web2Address: true,
+        address: true,
         dapp: true,
       }
     });
-    return dappWeb2Addresses.map((address) => ({
-      key: address.web2Address.key,
-      verified: address.web2Address.verified,
-      dapp: address.dapp.name,
-      enabled: address.enabled,
+    return dappAddresses.map((dappAddress) => ({
+      key: dappAddress.address.key,
+      verified: dappAddress.address.verified,
+      dapp: dappAddress.dapp.name,
+      enabled: dappAddress.enabled,
     }));
   }
 }

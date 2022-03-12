@@ -9,7 +9,7 @@ CREATE TABLE "wallets" (
 );
 
 -- CreateTable
-CREATE TABLE "web2_entities" (
+CREATE TABLE "addresses" (
     "id" UUID NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -18,7 +18,7 @@ CREATE TABLE "web2_entities" (
     "verified" BOOLEAN NOT NULL DEFAULT false,
     "walletId" UUID NOT NULL,
 
-    CONSTRAINT "web2_entities_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "addresses_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
@@ -32,34 +32,34 @@ CREATE TABLE "dapps" (
 );
 
 -- CreateTable
-CREATE TABLE "dapp_web2_entries" (
+CREATE TABLE "dapp_addresses" (
     "id" UUID NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "enabled" BOOLEAN NOT NULL,
-    "web2AddressId" UUID NOT NULL,
+    "addressId" UUID NOT NULL,
     "dappId" UUID NOT NULL,
 
-    CONSTRAINT "dapp_web2_entries_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "dapp_addresses_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "wallets_public_key_key" ON "wallets"("public_key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Web2Address_walletId_key_unique_constraint" ON "web2_entities"("walletId", "key");
+CREATE UNIQUE INDEX "Address_walletId_key_unique_constraint" ON "addresses"("walletId", "key");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "dapps_name_key" ON "dapps"("name");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "DappWeb2Entry_web2AddressId_dappId_unique_constraint" ON "dapp_web2_entries"("web2AddressId", "dappId");
+CREATE UNIQUE INDEX "DappAddress_addressId_dappId_unique_constraint" ON "dapp_addresses"("addressId", "dappId");
 
 -- AddForeignKey
-ALTER TABLE "web2_entities" ADD CONSTRAINT "web2_entities_walletId_fkey" FOREIGN KEY ("walletId") REFERENCES "wallets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "addresses" ADD CONSTRAINT "addresses_walletId_fkey" FOREIGN KEY ("walletId") REFERENCES "wallets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "dapp_web2_entries" ADD CONSTRAINT "dapp_web2_entries_web2AddressId_fkey" FOREIGN KEY ("web2AddressId") REFERENCES "web2_entities"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "dapp_addresses" ADD CONSTRAINT "dapp_addresses_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "addresses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "dapp_web2_entries" ADD CONSTRAINT "dapp_web2_entries_dappId_fkey" FOREIGN KEY ("dappId") REFERENCES "dapps"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "dapp_addresses" ADD CONSTRAINT "dapp_addresses_dappId_fkey" FOREIGN KEY ("dappId") REFERENCES "dapps"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
