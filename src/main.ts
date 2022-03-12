@@ -8,9 +8,9 @@ async function bootstrap() {
   });
 
   const config = new DocumentBuilder()
-    .setTitle('Monitoring service example')
+    .setTitle('Monitoring service')
     .setDescription('Monitoring service API description')
-    .setVersion('1.0')
+    .setVersion('0.1')
     .build();
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api', app, document);
