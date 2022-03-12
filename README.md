@@ -41,7 +41,7 @@ Please follow the instructions in https://github.com/dialectlabs/protocol#local-
 
 ### Running locally
 
-#### Step 1. Generate a new keypair for monitoring monitoring service and fund it
+#### Step 1. Generate a new keypair for monitoring service and fund it
 
 ```bash
 export your_path=~/projects/dialect

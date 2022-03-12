@@ -14,9 +14,86 @@ model UserExample {
   id          String   @id @default(uuid()) @db.Uuid
   name        String
   phoneNumber String   @unique @map("phone_number")
-  // misc
+
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
   @@map("user_example")
+}
+
+model Wallet {
+  // generic columns
+  id String @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // columns
+  publicKey String @unique @map("public_key")
+
+  // relations
+  web2Addresses Web2Address[]
+
+  // meta
+  @@map("wallets")
+}
+
+model Web2Address {
+  // generic columns
+  id String @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // columns
+  key String // e.g. 'email', 'telegram', 'sms'
+  value String // e.g. 'chris@dialect.to', '@chrisoss', etc.
+  verified Boolean @default(false)
+
+  // relations
+  walletId String @db.Uuid
+  wallet Wallet @relation(fields: [walletId], references: [id])
+  dappWeb2Addresses DappWeb2Address[]
+
+  // constraints
+  @@unique([walletId, key], map: "Web2Address_walletId_key_unique_constraint")
+
+  // meta
+  @@map("web2_addresses")
+}
+
+model Dapp {
+  // generic columns
+  id String @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // columns
+  name String @unique
+
+  // relations
+  dappWewb2Addresses DappWeb2Address[]
+
+  // meta
+  @@map("dapps")
+}
+
+model DappWeb2Address {
+  // generic columns
+  id String @id @default(uuid()) @db.Uuid
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // columns
+  enabled Boolean
+
+  // relations
+  web2AddressId String @db.Uuid
+  web2Address Web2Address @relation(fields: [web2AddressId], references: [id])
+  dappId String @db.Uuid
+  dapp Dapp @relation(fields: [dappId], references: [id])
+
+  // constraints
+  @@unique([web2AddressId, dappId], map: "DappWeb2Address_web2AddressId_dappId_unique_constraint")
+
+  // meta
+  @@map("dapp_web2_addresses")
 }
