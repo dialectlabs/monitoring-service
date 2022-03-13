@@ -18,7 +18,7 @@ async function seedDev() {
     },
     create: {
       id: '44a34c33-9938-49f3-935c-dcbf35d1b5a2',
-      key: 'email',
+      type: 'email',
       value: 'hello@dialect.to',
       verified: true,
       walletId: wallet.id, // TODO: Set wallet instead
@@ -34,7 +34,7 @@ async function seedDev() {
       name: 'dialect',
     },
     update: {},
-  })
+  });
   const dappAddress = await prisma.dappAddress.upsert({
     where: {
       id: '44a34c33-9938-49f3-935c-dcbf35d1b5a4',
@@ -46,7 +46,7 @@ async function seedDev() {
       enabled: true,
     },
     update: {},
-  })
+  });
   
   return;
 }

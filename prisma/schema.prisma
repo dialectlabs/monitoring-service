@@ -33,7 +33,7 @@ model Address {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // columns
-  key String // e.g. 'email', 'telegram', 'sms', etc.
+  type String // e.g. 'email', 'telegram', 'sms', etc. TODO: Make this an enum, perhaps only at the server level, not db
   value String // e.g. 'chris@dialect.to', '@chrisoss', etc.
   verified Boolean @default(false)
 
@@ -43,7 +43,7 @@ model Address {
   dappAddresses DappAddress[]
 
   // constraints
-  @@unique([walletId, key], map: "Address_walletId_key_unique_constraint")
+  @@unique([walletId, type], map: "Address_walletId_type_unique_constraint")
 
   // meta
   @@map("addresses")

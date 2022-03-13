@@ -1,25 +1,32 @@
+// Addresses
+
 export class AddressDto {
-  readonly key!: string;
+  readonly id!: string;
+  readonly type!: string; // e.g. 'email' or 'sms'
   readonly verified!: boolean;
 }
 
-export class DappAddressDto extends AddressDto {
-  readonly dapp!: string;
-  readonly enabled!: boolean;
+export class PutAddressDto {
+  readonly value!: string;
 }
 
-export class PostDappAddressDto {
-  readonly key!: string;
-  readonly value!: string;
+export class PostAddressDto extends PutAddressDto {
+  readonly type!: string;
+}
+
+// Dapp Addresses
+
+
+export class DappAddressDto extends AddressDto {
+  readonly addressId!: string;
+  readonly dapp!: string;  // e.g. 'friktion'
   readonly enabled!: boolean;
 }
 
 export class PutDappAddressDto {
-  readonly key!: string;
-  readonly value?: string;
   readonly enabled!: boolean;
 }
 
-export class DeleteDappAddressDto {
-  readonly key!: string;
+export class PostDappAddressDto extends PutDappAddressDto {
+  readonly addressId!: string;
 }
