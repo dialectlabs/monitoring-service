@@ -23,7 +23,7 @@ export class PostAddressDto extends PutAddressDto {
 
 export class DappAddressDto extends AddressDto {
   readonly addressId!: string;
-  readonly dapp!: string;  // e.g. 'friktion'
+  readonly dapp!: string; // e.g. 'friktion'
   readonly enabled!: boolean;
 }
 
