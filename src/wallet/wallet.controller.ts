@@ -10,11 +10,12 @@ import {
   Param,
   Post,
   Put,
+  Response as ResponseDep,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import {
-  AddressDto,
   DappAddressDto,
   PostDappAddressDto,
   PutDappAddressDto,
@@ -39,8 +40,10 @@ export class WalletController {
   async delete(
     @Param('public_key') public_key: string,
     @Param('id') id: string,
+    @ResponseDep() res: Response,
   ) {
     // TODO: Resolve return type
+    // TOOD: Enforce that wallet owns address
     // Delete *ALL* dappAddresses associated with a given address
     await this.prisma.dappAddress.deleteMany({
       where: {
@@ -119,21 +122,13 @@ export class WalletController {
     @Param('public_key') public_key: string,
     @Param('dapp') dapp: string,
     @Body() postDappAddressDto: PostDappAddressDto,
+    @ResponseDep() res: Response,
   ): Promise<DappAddressDto> {
     const addressId = postDappAddressDto.addressId;
     const type = postDappAddressDto.type;
     const value = postDappAddressDto.value;
     const enabled = postDappAddressDto.enabled;
-    // TODO: Retire to auth middleware
-    const wallet = await this.prisma.wallet.upsert({
-      where: {
-        publicKey: public_key,
-      },
-      create: {
-        publicKey: public_key,
-      },
-      update: {},
-    });
+    const wallet = res.locals.wallet;
 
     // TODO: Move to middleware
     // Dapp must already exist
@@ -155,7 +150,7 @@ export class WalletController {
 
       This is determined by there being no addressId in the payload.
       */
-      console.log("POST case 1: Creating an address...")
+      console.log('POST case 1: Creating an address...');
       try {
         address = await this.prisma.address.create({
           data: {
@@ -183,7 +178,7 @@ export class WalletController {
       This is determined by there being an addressId and a value supplied.
       */
       // TODO: Ensure this can't be done by non-owner.
-      console.log("POST case 2: Updating an address...")
+      console.log('POST case 2: Updating an address...');
       await this.prisma.address.updateMany({
         where: {
           id: addressId,
@@ -207,7 +202,7 @@ export class WalletController {
       /*
       Case 3: Address does not need to be created or updated.
       */
-      console.log("POST case 3: No address create or update...")
+      console.log('POST case 3: No address create or update...');
       const addresses = await this.prisma.address.findMany({
         where: {
           id: addressId,
@@ -272,10 +267,12 @@ export class WalletController {
     @Param('dapp') dapp: string,
     @Param('id') id: string,
     @Body() putDappAddressDto: PutDappAddressDto,
+    @ResponseDep() res: Response,
   ): Promise<DappAddressDto> {
     const addressId = putDappAddressDto.addressId;
     const value = putDappAddressDto.value;
     const enabled = putDappAddressDto.enabled;
+    const wallet = res.locals.wallet;
 
     if ((!addressId && value) || (addressId && !value))
       throw new HttpException(
@@ -284,17 +281,7 @@ export class WalletController {
       );
 
     // TODO: Retire to auth middleware
-    const wallet = await this.prisma.wallet.findUnique({
-      where: {
-        publicKey: public_key,
-      },
-    });
-
-    if (!wallet)
-      throw new HttpException(
-        `Invalid wallet public_key ${public_key}. Please check your inputs and try again.`,
-        HttpStatus.UNAUTHORIZED,
-      );
+    
 
     let address;
     if (addressId && value) {
