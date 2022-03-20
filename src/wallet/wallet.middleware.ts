@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable, NestMiddleware } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Inject,
+  Injectable,
+  NestMiddleware,
+} from '@nestjs/common';
 import { NextFunction, Request, Response } from 'express';
 import { PrismaService } from 'src/prisma/prisma.service';
 
@@ -28,6 +34,26 @@ export class AuthMiddleware implements NestMiddleware {
       );
 
     res.locals.wallet = wallet;
+    next();
+  }
+}
+
+@Injectable()
+export class DappMiddleware implements NestMiddleware {
+  constructor(private readonly prisma: PrismaService) {}
+  async use(req: Request, res: Response, next: NextFunction) {
+    const dapp = req.params.dapp;
+    const dapp_ = await this.prisma.dapp.findUnique({
+      where: {
+        name: dapp,
+      },
+    });
+    if (!dapp_)
+      throw new HttpException(
+        `Unrecognized dapp '${dapp}'. Please provide a valid dapp and try again`,
+        HttpStatus.BAD_REQUEST,
+      );
+    res.locals.dapp = dapp_;
     next();
   }
 }

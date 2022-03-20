@@ -6,7 +6,11 @@ import {
 } from '@nestjs/common';
 import { PrismaModule } from '../prisma/prisma.module';
 import { WalletController } from './wallet.controller';
-import { AuthMiddleware, LoggerMiddleware } from './wallet.middleware';
+import {
+  AuthMiddleware,
+  DappMiddleware,
+  LoggerMiddleware,
+} from './wallet.middleware';
 
 @Module({
   imports: [PrismaModule],
@@ -23,5 +27,6 @@ export class WalletModule implements NestModule {
         method: RequestMethod.GET,
       })
       .forRoutes(WalletController);
+    consumer.apply(DappMiddleware).forRoutes('*/dapps/:dapp*');
   }
 }

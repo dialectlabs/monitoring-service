@@ -129,19 +129,7 @@ export class WalletController {
     const value = postDappAddressDto.value;
     const enabled = postDappAddressDto.enabled;
     const wallet = res.locals.wallet;
-
-    // TODO: Move to middleware
-    // Dapp must already exist
-    const dapp_ = await this.prisma.dapp.findUnique({
-      where: {
-        name: dapp,
-      },
-    });
-    if (!dapp_)
-      throw new HttpException(
-        `Unrecognized dapp '${dapp}'. Please provide a valid dapp and try again`,
-        HttpStatus.BAD_REQUEST,
-      );
+    const dapp_ = res.locals.dapp;
 
     let address;
     if (!addressId && type && value) {
@@ -281,7 +269,6 @@ export class WalletController {
       );
 
     // TODO: Retire to auth middleware
-    
 
     let address;
     if (addressId && value) {
