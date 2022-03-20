@@ -7,18 +7,6 @@ export class AddressDto {
   readonly verified!: boolean;
 }
 
-export class PutAddressDto {
-  @IsNotEmpty()
-  @IsEmail()
-  readonly value!: string;
-}
-
-export class PostAddressDto extends PutAddressDto {
-  @IsNotEmpty()
-  @IsIn(['email'])
-  readonly type!: string;
-}
-
 // Dapp Addresses
 
 export class DappAddressDto extends AddressDto {
@@ -28,13 +16,42 @@ export class DappAddressDto extends AddressDto {
 }
 
 export class PutDappAddressDto {
+  /*
+  This payload is overloaded to support 2 use cases:
+
+  1. An address must be updated. Requires:
+    - addressId
+    - value
+    - enabled
+  2. An address does not need to be updated. Requires:
+    - enabled
+  */
+  readonly addressId!: string;
+  @IsEmail()
+  readonly value!: string;
   @IsNotEmpty()
   @IsBoolean()
   readonly enabled!: boolean;
 }
 
 export class PostDappAddressDto extends PutDappAddressDto {
-  @IsNotEmpty()
-  @IsBoolean()
-  readonly addressId!: string;
+  /*
+  This payload is overloaded to support 3 use cases:
+
+  1. An address must also be created. Requires:
+    - type
+    - value
+    - enabled
+  2. An address exists but must be updated. Requires:
+    - addressId
+    - value
+    - enabled
+  3. An address exists and does not need to be updated. Requires:
+    - addressId
+    - enabled
+  */
+  @IsIn(['email'])
+  readonly type!: string;
 }
+
+export class PostDappAddressDto2 extends PutDappAddressDto {}

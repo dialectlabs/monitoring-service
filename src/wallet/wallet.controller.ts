@@ -14,9 +14,7 @@ import { PrismaService } from '../prisma/prisma.service';
 import {
   AddressDto,
   DappAddressDto,
-  PostAddressDto,
   PostDappAddressDto,
-  PutAddressDto,
   PutDappAddressDto,
 } from './wallet.controller.dto';
 
@@ -32,108 +30,9 @@ export class WalletController {
   Addresses
   */
 
-  // Create an address
-  @Post(':public_key/addresses')
-  async post_address(
-    @Param('public_key') public_key: string,
-    @Body() postAddressDto: PostAddressDto,
-  ): Promise<AddressDto> {
-    const type = postAddressDto.type;
-    const value = postAddressDto.value;
-
-    // TODO: Retire to auth middleware
-    const wallet = await this.prisma.wallet.upsert({
-      where: {
-        publicKey: public_key,
-      },
-      create: {
-        publicKey: public_key,
-      },
-      update: {},
-    });
-
-    let address;
-    try {
-      address = await this.prisma.address.create({
-        data: {
-          type,
-          value,
-          walletId: wallet.id,
-        },
-      });
-    } catch (e: any) {
-      console.log('e', e);
-      if (e?.message?.includes('Unique constraint failed'))
-        throw new HttpException(
-          `Wallet ${public_key} already has a ${type} address on file. Use PUT method instead.`,
-          HttpStatus.BAD_REQUEST,
-        );
-      throw new HttpException(
-        'Something went wrong, please try again or contact support at hello@dialect.to.',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    }
-    return {
-      id: address.id,
-      type: address.type,
-      verified: address.verified,
-    };
-  }
-
-  // Update an address
-  @Put(':public_key/addresses/:id')
-  async put_address(
-    @Param('public_key') public_key: string,
-    @Param('id') id: string,
-    @Body() putAddressDto: PutAddressDto,
-  ): Promise<AddressDto> {
-    const value = putAddressDto.value;
-    if (!value)
-      throw new HttpException(
-        'You must provide a valid address value. None provided.',
-        HttpStatus.BAD_REQUEST,
-      );
-
-    // TODO: Retire to auth middleware
-    const wallet = await this.prisma.wallet.upsert({
-      where: {
-        publicKey: public_key,
-      },
-      create: {
-        publicKey: public_key,
-      },
-      update: {},
-    });
-
-    // TODO: Ensure this can't be done by non-owner.
-    await this.prisma.address.updateMany({
-      where: {
-        id,
-        walletId: wallet.id,
-      },
-      data: {
-        value,
-      },
-    });
-
-    const address = await this.prisma.address.findUnique({
-      where: { id },
-    });
-
-    if (!address)
-      throw new HttpException(
-        `Address ${id} not found. Check your inputs and try again.`,
-        HttpStatus.NOT_FOUND,
-      );
-
-    return {
-      id: address.id,
-      type: address.type,
-      verified: address.verified,
-    };
-  }
-
-  // Delete an address. N.b. this will delete all corresponding dapp address configurations.
+  /*
+  Delete an address. N.b. this will delete all corresponding dapp address configurations.
+  */
   @Delete(':public_key/addresses/:id')
   async delete(
     @Param('public_key') public_key: string,
@@ -160,7 +59,9 @@ export class WalletController {
   Dapp Addresses
   */
 
-  // Get a list of addresses on file for a given dapp. N.b. this only returns the type (e.g. 'email'), and whether it's verified and enabled; it does *NOT* return the value (e.g. 'chris@dialect.to').
+  /*
+  Get a list of addresses on file for a given dapp. N.b. this only returns the type (e.g. 'email'), and whether it's verified and enabled; it does *NOT* return the value (e.g. 'chris@dialect.to').
+  */
   @Get(':public_key/dapps/:dapp/addresses')
   async get(
     @Param('public_key') public_key: string,
@@ -202,16 +103,26 @@ export class WalletController {
     }));
   }
 
-  // Create a dapp address, enable it for a specific dapp.
+  /*
+  Create a new dapp address. N.b. this also handles the following cases for addresses:
+
+  1. Create an address.
+  2. Update an address.
+  3. Neither create nor update an address.
+
+  In all of the above, the dapp address is being created, hence the POST method type.
+  */
   @Post(':public_key/dapps/:dapp/addresses')
   async post(
     @Param('public_key') public_key: string,
     @Param('dapp') dapp: string,
     @Body() postDappAddressDto: PostDappAddressDto,
   ): Promise<DappAddressDto> {
-    const enabled = postDappAddressDto.enabled;
     const addressId = postDappAddressDto.addressId;
-    // TODO: TODO: Retire to auth middleware
+    const type = postDappAddressDto.type;
+    const value = postDappAddressDto.value;
+    const enabled = postDappAddressDto.enabled;
+    // TODO: Retire to auth middleware
     const wallet = await this.prisma.wallet.upsert({
       where: {
         publicKey: public_key,
@@ -235,24 +146,83 @@ export class WalletController {
         HttpStatus.BAD_REQUEST,
       );
 
-    const addresses = await this.prisma.address.findMany({
-      where: {
-        id: addressId,
-        walletId: wallet.id,
-      },
-    });
+    let address;
+    if (!addressId) {
+      /*
+      Case 1: Create an address
 
-    if (addresses.length < 1)
-      throw new HttpException(
-        `Could not find address ${addressId} for wallet ${wallet.publicKey}. Check your inputs and try again.`,
-        HttpStatus.BAD_REQUEST,
-      );
+      This is determined by there being no addressId in the payload.
+      */
+      try {
+        address = await this.prisma.address.create({
+          data: {
+            type,
+            value,
+            walletId: wallet.id,
+          },
+        });
+      } catch (e: any) {
+        console.log('e', e);
+        if (e?.message?.includes('Unique constraint failed'))
+          throw new HttpException(
+            `Wallet ${public_key} already has a ${type} address on file. You must therefore supply an addressId to this route.`,
+            HttpStatus.BAD_REQUEST,
+          );
+        throw new HttpException(
+          'Something went wrong, please try again or contact support at hello@dialect.to.',
+          HttpStatus.INTERNAL_SERVER_ERROR,
+        );
+      }
+    } else if (value) {
+      /*
+      Case 2: Address exists and must be updated.
+
+      This is determined by there being an addressId and a value supplied.
+      */
+      // TODO: Ensure this can't be done by non-owner.
+      await this.prisma.address.updateMany({
+        where: {
+          id: addressId,
+          walletId: wallet.id,
+        },
+        data: {
+          value,
+        },
+      });
+
+      address = await this.prisma.address.findUnique({
+        where: { id: addressId },
+      });
+
+      if (!address)
+        throw new HttpException(
+          `Address ${addressId} not found. Check your inputs and try again.`,
+          HttpStatus.NOT_FOUND,
+        );
+    } else {
+      /*
+      Case 3: Address does not need to be created or updated.
+      */
+      const addresses = await this.prisma.address.findMany({
+        where: {
+          id: addressId,
+          walletId: wallet.id,
+        },
+      });
+
+      if (addresses.length < 1)
+        throw new HttpException(
+          `Could not find address ${addressId} for wallet ${wallet.publicKey}. Check your inputs and try again.`,
+          HttpStatus.BAD_REQUEST,
+        );
+      address = addresses[0];
+    }
 
     const dappAddress = await this.prisma.dappAddress.create({
       data: {
-        enabled: postDappAddressDto.enabled,
+        enabled,
         dappId: dapp_.id,
-        addressId,
+        addressId: address.id,
       },
       include: {
         address: true,
@@ -270,7 +240,14 @@ export class WalletController {
     };
   }
 
-  // Update a dapp address by enabling or disabling it
+  /*
+  Update a dapp address. N.b. this also handles the following cases for addresses:
+
+  1. Update an address.
+  2. Don't update an address.
+
+  In all of the above, the dapp address is being created, hence the POST method type.
+  */
   @Put(':public_key/dapps/:dapp/addresses/:id')
   async put(
     @Param('public_key') public_key: string,
@@ -278,7 +255,15 @@ export class WalletController {
     @Param('id') id: string,
     @Body() putDappAddressDto: PutDappAddressDto,
   ): Promise<DappAddressDto> {
+    const addressId = putDappAddressDto.addressId;
+    const value = putDappAddressDto.value;
     const enabled = putDappAddressDto.enabled;
+
+    if ((!addressId && value) || (addressId && !value))
+      throw new HttpException(
+        `An addressId (${addressId}) and value (${value}) must either both be supplied, or both be null. Cannot have one null and one non-null. Check your inputs and try again.`,
+        HttpStatus.BAD_REQUEST,
+      );
 
     // TODO: Retire to auth middleware
     const wallet = await this.prisma.wallet.findUnique({
@@ -293,6 +278,52 @@ export class WalletController {
         HttpStatus.UNAUTHORIZED,
       );
 
+    let address;
+    if (addressId && value) {
+      /*
+      Case 1: Address must be updated.
+
+      This is determined by addressId & value being supplied.
+      */
+      await this.prisma.address.updateMany({
+        where: {
+          id: addressId,
+          walletId: wallet.id,
+        },
+        data: {
+          value,
+        },
+      });
+
+      address = await this.prisma.address.findUnique({
+        where: { id: addressId },
+      });
+
+      if (!address)
+        throw new HttpException(
+          `Address ${addressId} not found. Check your inputs and try again.`,
+          HttpStatus.NOT_FOUND,
+        );
+    } else {
+      /*
+      Case 2: Address does not need to be updated.
+      */
+      const addresses = await this.prisma.address.findMany({
+        where: {
+          id: addressId,
+          walletId: wallet.id,
+        },
+      });
+
+      if (addresses.length < 1)
+        throw new HttpException(
+          `Could not find address ${addressId} for wallet ${wallet.publicKey}. Check your inputs and try again.`,
+          HttpStatus.BAD_REQUEST,
+        );
+      address = addresses[0];
+    }
+
+    // Now handle updating the dapp address
     let dappAddress = await this.prisma.dappAddress.findUnique({
       where: {
         id,
