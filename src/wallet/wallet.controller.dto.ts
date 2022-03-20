@@ -1,4 +1,4 @@
-import { IsNotEmpty, IsIn, IsEmail, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsIn, IsEmail, IsBoolean, IsOptional } from 'class-validator';
 // Addresses
 
 export class AddressDto {
@@ -27,7 +27,7 @@ export class PutDappAddressDto {
     - enabled
   */
   readonly addressId!: string;
-  @IsEmail()
+  @IsEmail() @IsOptional()
   readonly value!: string;
   @IsNotEmpty()
   @IsBoolean()

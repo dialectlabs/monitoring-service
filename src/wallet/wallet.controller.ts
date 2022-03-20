@@ -1,3 +1,5 @@
+// TODO: Enforce UUID format in some kind of middleware exception handling.
+// Consolidate exception handling into single wrapper
 import {
   Body,
   Controller,
@@ -147,12 +149,13 @@ export class WalletController {
       );
 
     let address;
-    if (!addressId) {
+    if (!addressId && type && value) {
       /*
       Case 1: Create an address
 
       This is determined by there being no addressId in the payload.
       */
+      console.log("POST case 1: Creating an address...")
       try {
         address = await this.prisma.address.create({
           data: {
@@ -180,6 +183,7 @@ export class WalletController {
       This is determined by there being an addressId and a value supplied.
       */
       // TODO: Ensure this can't be done by non-owner.
+      console.log("POST case 2: Updating an address...")
       await this.prisma.address.updateMany({
         where: {
           id: addressId,
@@ -203,6 +207,7 @@ export class WalletController {
       /*
       Case 3: Address does not need to be created or updated.
       */
+      console.log("POST case 3: No address create or update...")
       const addresses = await this.prisma.address.findMany({
         where: {
           id: addressId,
@@ -217,18 +222,31 @@ export class WalletController {
         );
       address = addresses[0];
     }
-
-    const dappAddress = await this.prisma.dappAddress.create({
-      data: {
-        enabled,
-        dappId: dapp_.id,
-        addressId: address.id,
-      },
-      include: {
-        address: true,
-        dapp: true,
-      },
-    });
+    let dappAddress;
+    try {
+      dappAddress = await this.prisma.dappAddress.create({
+        data: {
+          enabled,
+          dappId: dapp_.id,
+          addressId: address.id,
+        },
+        include: {
+          address: true,
+          dapp: true,
+        },
+      });
+    } catch (e: any) {
+      console.log('e', e);
+      if (e?.message?.includes('Unique constraint failed'))
+        throw new HttpException(
+          `Wallet ${public_key} address already has a dapp address on file for dapp '${dapp}'. Use the update dapp address route instead.`,
+          HttpStatus.BAD_REQUEST,
+        );
+      throw new HttpException(
+        'Something went wrong, please try again or contact support at hello@dialect.to.',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
 
     return {
       id: dappAddress.id,
