@@ -37,14 +37,17 @@ export class WalletController {
   Delete an address. N.b. this will delete all corresponding dapp address configurations.
   */
   @Delete(':public_key/addresses/:id')
-  async delete(
-    @Param('public_key') public_key: string,
-    @Param('id') id: string,
-    @ResponseDep() res: Response,
-  ) {
+  async delete(@Param('id') id: string, @ResponseDep() res: Response) {
     // TODO: Resolve return type
     // TOOD: Enforce that wallet owns address
     // Delete *ALL* dappAddresses associated with a given address
+    const wallet = res.locals.wallet;
+    const addresses = await this.prisma.address.findMany({
+      where: {
+        id,
+        walletId: wallet.id,
+      },
+    });
     await this.prisma.dappAddress.deleteMany({
       where: {
         addressId: id,
@@ -120,7 +123,6 @@ export class WalletController {
   @Post(':public_key/dapps/:dapp/addresses')
   async post(
     @Param('public_key') public_key: string,
-    @Param('dapp') dapp: string,
     @Body() postDappAddressDto: PostDappAddressDto,
     @ResponseDep() res: Response,
   ): Promise<DappAddressDto> {
@@ -222,7 +224,7 @@ export class WalletController {
       console.log('e', e);
       if (e?.message?.includes('Unique constraint failed'))
         throw new HttpException(
-          `Wallet ${public_key} address already has a dapp address on file for dapp '${dapp}'. Use the update dapp address route instead.`,
+          `Wallet ${public_key} address already has a dapp address on file for dapp '${dapp_.name}'. Use the update dapp address route instead.`,
           HttpStatus.BAD_REQUEST,
         );
       throw new HttpException(
@@ -251,8 +253,6 @@ export class WalletController {
   */
   @Put(':public_key/dapps/:dapp/addresses/:id')
   async put(
-    @Param('public_key') public_key: string,
-    @Param('dapp') dapp: string,
     @Param('id') id: string,
     @Body() putDappAddressDto: PutDappAddressDto,
     @ResponseDep() res: Response,
