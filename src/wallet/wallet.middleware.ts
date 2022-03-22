@@ -104,7 +104,7 @@ export class AuthMiddleware implements NestMiddleware {
       throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
     }
 
-    res.locals.wallet = wallet;
+    req.wallet = wallet;
     next();
   }
 }
