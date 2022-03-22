@@ -45,23 +45,21 @@ export class AuthMiddleware implements NestMiddleware {
       );
     }
 
-    let now: number;
+    let expirationTime: number;
     try {
-      now = parseInt(req.headers['x-timestamp'] as string, 10);
-    } catch (e: any) {
-      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
-    }
-
-    let tokenTTL: number;
-    try {
-      tokenTTL = parseInt(req.headers['x-token-ttl'] as string, 10);
+      expirationTime = parseInt(
+        (req.headers['authorization'] as string).split('.')[0],
+        10,
+      );
     } catch (e: any) {
       throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
     }
 
     let signature: Uint8Array;
     try {
-      signature = base64ToUint8(req.headers['authorization'] || '');
+      signature = base64ToUint8(
+        (req.headers['authorization'] as string).split('.')[1] || '',
+      );
     } catch (e: any) {
       throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
     }
@@ -92,7 +90,7 @@ export class AuthMiddleware implements NestMiddleware {
 
     try {
       const dateEncoded = new TextEncoder().encode(
-        btoa(JSON.stringify(now + tokenTTL * 60)),
+        btoa(JSON.stringify(expirationTime)),
       );
       const signatureVerified = nacl.sign.detached.verify(
         dateEncoded,
