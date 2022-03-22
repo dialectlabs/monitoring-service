@@ -49,6 +49,13 @@ export class AuthMiddleware implements NestMiddleware {
       throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
     }
 
+    let tokenTTL: number;
+    try {
+      tokenTTL = parseInt(req.headers['x-token-ttl'] as string, 10);
+    } catch (e: any) {
+      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+    }
+
     let signature: Uint8Array;
     try {
       signature = base64ToUint8(req.headers['authorization'] || '');
@@ -78,8 +85,12 @@ export class AuthMiddleware implements NestMiddleware {
         HttpStatus.UNAUTHORIZED,
       );
 
+    // Check token not expired: fromBase64(expirationTime) > getCurrentUtcSeconds()
+
     try {
-      const dateEncoded = new TextEncoder().encode(btoa(JSON.stringify(now)));
+      const dateEncoded = new TextEncoder().encode(
+        btoa(JSON.stringify(now + tokenTTL * 60)),
+      );
       const signatureVerified = nacl.sign.detached.verify(
         dateEncoded,
         signature,
