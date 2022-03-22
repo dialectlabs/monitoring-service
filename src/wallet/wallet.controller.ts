@@ -10,16 +10,16 @@ import {
   Param,
   Post,
   Put,
-  Response as ResponseDep,
 } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
 import { PrismaService } from '../prisma/prisma.service';
 import {
   DappAddressDto,
   PostDappAddressDto,
   PutDappAddressDto,
 } from './wallet.controller.dto';
+import { InjectDapp, InjectWallet } from './decorators';
+import { Dapp, Wallet } from '@prisma/client';
 
 @ApiTags('Wallets')
 @Controller({
@@ -30,18 +30,22 @@ export class WalletController {
   constructor(private readonly prisma: PrismaService) {}
 
   /*
-  Addresses
-  */
+    Addresses
+    */
 
   /*
-  Delete an address. N.b. this will delete all corresponding dapp address configurations.
-  */
+    Delete an address. N.b. this will delete all corresponding dapp address configurations.
+    */
   @Delete(':public_key/addresses/:id')
-  async delete(@Param('id') id: string, @ResponseDep() res: Response) {
+  async delete(
+    @Param('public_key') publicKey: string,
+    @Param('id') id: string,
+    @InjectDapp() dapp: Dapp,
+    @InjectWallet() wallet: Wallet,
+  ) {
     // TODO: Resolve return type
     // TOOD: Enforce that wallet owns address
     // Delete *ALL* dappAddresses associated with a given address
-    const wallet = res.locals.wallet;
     const addresses = await this.prisma.address.findMany({
       where: {
         id,
@@ -64,37 +68,28 @@ export class WalletController {
   }
 
   /*
-  Dapp Addresses
-  */
+    Dapp Addresses
+    */
 
   /*
-  Get a list of addresses on file for a given dapp. N.b. this only returns the type (e.g. 'email'), and whether it's verified and enabled; it does *NOT* return the value (e.g. 'chris@dialect.to').
-  */
+    Get a list of addresses on file for a given dapp. N.b. this only returns the type (e.g. 'email'), and whether it's verified and enabled; it does *NOT* return the value (e.g. 'chris@dialect.to').
+    */
   @Get(':public_key/dapps/:dapp/addresses')
   async get(
-    @Param('public_key') public_key: string,
-    @Param('dapp') dapp: string,
+    @Param('public_key') publicKey: string,
+    @Param('dapp') dappName: string,
+    @InjectDapp() dapp: Dapp,
   ): Promise<DappAddressDto[]> {
     const dappAddresses = await this.prisma.dappAddress.findMany({
       where: {
-        AND: [
-          {
-            dapp: {
-              name: {
-                equals: dapp,
-              },
-            },
+        dapp: {
+          name: dappName,
+        },
+        address: {
+          wallet: {
+            publicKey,
           },
-          {
-            address: {
-              wallet: {
-                publicKey: {
-                  equals: public_key,
-                },
-              },
-            },
-          },
-        ],
+        },
       },
       include: {
         address: true,
@@ -112,34 +107,34 @@ export class WalletController {
   }
 
   /*
-  Create a new dapp address. N.b. this also handles the following cases for addresses:
-
-  1. Create an address.
-  2. Update an address.
-  3. Neither create nor update an address.
-
-  In all of the above, the dapp address is being created, hence the POST method type.
-  */
+    Create a new dapp address. N.b. this also handles the following cases for addresses:
+  
+    1. Create an address.
+    2. Update an address.
+    3. Neither create nor update an address.
+  
+    In all of the above, the dapp address is being created, hence the POST method type.
+    */
   @Post(':public_key/dapps/:dapp/addresses')
   async post(
-    @Param('public_key') public_key: string,
+    @Param('public_key') publicKey: string,
+    @Param('dapp') dappName: string,
+    @InjectDapp() dapp: Dapp,
+    @InjectWallet() wallet: Wallet,
     @Body() postDappAddressDto: PostDappAddressDto,
-    @ResponseDep() res: Response,
   ): Promise<DappAddressDto> {
     const addressId = postDappAddressDto.addressId;
     const type = postDappAddressDto.type;
     const value = postDappAddressDto.value;
     const enabled = postDappAddressDto.enabled;
-    const wallet = res.locals.wallet;
-    const dapp_ = res.locals.dapp;
 
     let address;
     if (!addressId && type && value) {
       /*
-      Case 1: Create an address
-
-      This is determined by there being no addressId in the payload.
-      */
+            Case 1: Create an address
+      
+            This is determined by there being no addressId in the payload.
+            */
       console.log('POST case 1: Creating an address...');
       try {
         address = await this.prisma.address.create({
@@ -153,7 +148,7 @@ export class WalletController {
         console.log('e', e);
         if (e?.message?.includes('Unique constraint failed'))
           throw new HttpException(
-            `Wallet ${public_key} already has a ${type} address on file. You must therefore supply an addressId to this route.`,
+            `Wallet ${publicKey} already has a ${type} address on file. You must therefore supply an addressId to this route.`,
             HttpStatus.BAD_REQUEST,
           );
         throw new HttpException(
@@ -163,10 +158,10 @@ export class WalletController {
       }
     } else if (value) {
       /*
-      Case 2: Address exists and must be updated.
-
-      This is determined by there being an addressId and a value supplied.
-      */
+            Case 2: Address exists and must be updated.
+      
+            This is determined by there being an addressId and a value supplied.
+            */
       // TODO: Ensure this can't be done by non-owner.
       console.log('POST case 2: Updating an address...');
       await this.prisma.address.updateMany({
@@ -190,8 +185,8 @@ export class WalletController {
         );
     } else {
       /*
-      Case 3: Address does not need to be created or updated.
-      */
+            Case 3: Address does not need to be created or updated.
+            */
       console.log('POST case 3: No address create or update...');
       const addresses = await this.prisma.address.findMany({
         where: {
@@ -212,7 +207,7 @@ export class WalletController {
       dappAddress = await this.prisma.dappAddress.create({
         data: {
           enabled,
-          dappId: dapp_.id,
+          dappId: dapp.id,
           addressId: address.id,
         },
         include: {
@@ -224,7 +219,7 @@ export class WalletController {
       console.log('e', e);
       if (e?.message?.includes('Unique constraint failed'))
         throw new HttpException(
-          `Wallet ${public_key} address already has a dapp address on file for dapp '${dapp_.name}'. Use the update dapp address route instead.`,
+          `Wallet ${publicKey} address already has a dapp address on file for dapp '${dapp.name}'. Use the update dapp address route instead.`,
           HttpStatus.BAD_REQUEST,
         );
       throw new HttpException(
@@ -238,29 +233,31 @@ export class WalletController {
       addressId: dappAddress.address.id,
       type: dappAddress.address.type,
       verified: dappAddress.address.verified,
-      dapp: dapp_.name,
+      dapp: dapp.name,
       enabled: dappAddress.enabled,
     };
   }
 
   /*
-  Update a dapp address. N.b. this also handles the following cases for addresses:
-
-  1. Update an address.
-  2. Don't update an address.
-
-  In all of the above, the dapp address is being created, hence the POST method type.
-  */
+    Update a dapp address. N.b. this also handles the following cases for addresses:
+  
+    1. Update an address.
+    2. Don't update an address.
+  
+    In all of the above, the dapp address is being created, hence the POST method type.
+    */
   @Put(':public_key/dapps/:dapp/addresses/:id')
   async put(
     @Param('id') id: string,
+    @Param('public_key') publicKey: string,
+    @Param('dapp') dappName: string,
+    @InjectWallet() wallet: Wallet,
+    @InjectDapp() dapp: Dapp,
     @Body() putDappAddressDto: PutDappAddressDto,
-    @ResponseDep() res: Response,
   ): Promise<DappAddressDto> {
     const addressId = putDappAddressDto.addressId;
     const value = putDappAddressDto.value;
     const enabled = putDappAddressDto.enabled;
-    const wallet = res.locals.wallet;
 
     if ((!addressId && value) || (addressId && !value))
       throw new HttpException(
@@ -273,10 +270,10 @@ export class WalletController {
     let address;
     if (addressId && value) {
       /*
-      Case 1: Address must be updated.
-
-      This is determined by addressId & value being supplied.
-      */
+            Case 1: Address must be updated.
+      
+            This is determined by addressId & value being supplied.
+            */
       await this.prisma.address.updateMany({
         where: {
           id: addressId,
@@ -298,8 +295,8 @@ export class WalletController {
         );
     } else {
       /*
-      Case 2: Address does not need to be updated.
-      */
+            Case 2: Address does not need to be updated.
+            */
       const addresses = await this.prisma.address.findMany({
         where: {
           id: addressId,
