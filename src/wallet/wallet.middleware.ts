@@ -7,8 +7,19 @@ import {
 import { Dapp } from '@prisma/client';
 import { PublicKey } from '@solana/web3.js';
 import { NextFunction, Request, Response } from 'express';
+import nacl from 'tweetnacl';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { RequestScopedDApp, RequestScopedWallet } from './decorators';
+
+function base64ToUint8(string: string): Uint8Array {
+  return new Uint8Array(
+    atob(string)
+      .split('')
+      .map(function (c) {
+        return c.charCodeAt(0);
+      }),
+  );
+}
 
 @Injectable()
 export class LoggerMiddleware implements NestMiddleware {
@@ -24,7 +35,6 @@ export class LoggerMiddleware implements NestMiddleware {
 export class AuthMiddleware implements NestMiddleware {
   constructor(private readonly prisma: PrismaService) {}
   async use(req: RequestScopedWallet, res: Response, next: NextFunction) {
-    console.log('req.headers', req.headers);
     let public_key: PublicKey;
     try {
       public_key = new PublicKey(req.params.public_key);
@@ -33,6 +43,27 @@ export class AuthMiddleware implements NestMiddleware {
         `Invalid format wallet public_key ${req.params.public_key}, please check your inputs and try again.`,
         HttpStatus.BAD_REQUEST,
       );
+    }
+
+    let now: number;
+    try {
+      now = parseInt(req.headers['x-timestamp'] as string, 10);
+    } catch (e: any) {
+      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+    }
+
+    let tokenTTL: number;
+    try {
+      tokenTTL = parseInt(req.headers['x-token-ttl'] as string, 10);
+    } catch (e: any) {
+      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+    }
+
+    let signature: Uint8Array;
+    try {
+      signature = base64ToUint8(req.headers['authorization'] || '');
+    } catch (e: any) {
+      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
     }
 
     const wallet = await this.prisma.wallet.upsert({
@@ -57,7 +88,25 @@ export class AuthMiddleware implements NestMiddleware {
         HttpStatus.UNAUTHORIZED,
       );
 
-    req.wallet = wallet;
+    // Check token not expired: fromBase64(expirationTime) > getCurrentUtcSeconds()
+
+    try {
+      const dateEncoded = new TextEncoder().encode(
+        btoa(JSON.stringify(now + tokenTTL * 60)),
+      );
+      const signatureVerified = nacl.sign.detached.verify(
+        dateEncoded,
+        signature,
+        public_key.toBytes(),
+      );
+      if (!signatureVerified) {
+        throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+      }
+    } catch (e: any) {
+      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+    }
+
+    res.locals.wallet = wallet;
     next();
   }
 }
