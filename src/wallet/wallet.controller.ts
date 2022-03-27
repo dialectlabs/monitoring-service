@@ -44,14 +44,20 @@ export class WalletController {
     @InjectWallet() wallet: Wallet,
   ) {
     // TODO: Resolve return type
-    // TOOD: Enforce that wallet owns address
-    // Delete *ALL* dappAddresses associated with a given address
+    // First enforce that the address is owned by the requesting public key.
     const addresses = await this.prisma.address.findMany({
       where: {
         id,
         walletId: wallet.id,
       },
     });
+    if (addresses.length < 1)
+      throw new HttpException(
+        `Unabled to delete address ${id} as it either doesn't exist or is not owned by wallet public key ${publicKey}. Check your inputs and try again.`,
+        HttpStatus.BAD_REQUEST,
+      );
+
+    // Delete *ALL* dappAddresses associated with a given address
     await this.prisma.dappAddress.deleteMany({
       where: {
         addressId: id,
@@ -107,14 +113,14 @@ export class WalletController {
   }
 
   /*
-    Create a new dapp address. N.b. this also handles the following cases for addresses:
-  
-    1. Create an address.
-    2. Update an address.
-    3. Neither create nor update an address.
-  
-    In all of the above, the dapp address is being created, hence the POST method type.
-    */
+  Create a new dapp address. N.b. this also handles the following cases for addresses:
+
+  1. Create an address.
+  2. Update an address.
+  3. Neither create nor update an address.
+
+  In all of the above, the dapp address is being created, hence the POST method type.
+  */
   @Post(':public_key/dapps/:dapp/addresses')
   async post(
     @Param('public_key') publicKey: string,
@@ -131,10 +137,10 @@ export class WalletController {
     let address;
     if (!addressId && type && value) {
       /*
-            Case 1: Create an address
-      
-            This is determined by there being no addressId in the payload.
-            */
+      Case 1: Create an address
+
+      This is determined by there being no addressId in the payload.
+      */
       console.log('POST case 1: Creating an address...');
       try {
         address = await this.prisma.address.create({
@@ -158,10 +164,10 @@ export class WalletController {
       }
     } else if (value) {
       /*
-            Case 2: Address exists and must be updated.
-      
-            This is determined by there being an addressId and a value supplied.
-            */
+      Case 2: Address exists and must be updated.
+
+      This is determined by there being an addressId and a value supplied.
+      */
       // TODO: Ensure this can't be done by non-owner.
       console.log('POST case 2: Updating an address...');
       await this.prisma.address.updateMany({

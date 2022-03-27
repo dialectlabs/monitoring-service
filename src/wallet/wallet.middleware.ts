@@ -74,19 +74,11 @@ export class AuthMiddleware implements NestMiddleware {
       update: {},
     });
 
-    // const wallet = await this.prisma.wallet.findUnique({
-    //   where: {
-    //     publicKey: public_key.toBase58(),
-    //   },
-    // });
-
     if (!wallet)
       throw new HttpException(
         `Invalid wallet public_key ${public_key.toBase58()}. Please check your inputs and try again.`,
         HttpStatus.UNAUTHORIZED,
       );
-
-    // Check token not expired: fromBase64(expirationTime) > getCurrentUtcSeconds()
 
     try {
       const dateEncoded = new TextEncoder().encode(
