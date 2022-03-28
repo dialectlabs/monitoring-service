@@ -83,13 +83,13 @@ export class WalletController {
   @Get(':public_key/dapps/:dapp/addresses')
   async get(
     @Param('public_key') publicKey: string,
-    @Param('dapp') dappName: string,
+    @Param('dapp') dappPublicKey: string,
     @InjectDapp() dapp: Dapp,
   ): Promise<DappAddressDto[]> {
     const dappAddresses = await this.prisma.dappAddress.findMany({
       where: {
         dapp: {
-          name: dappName,
+          publicKey: dappPublicKey,
         },
         address: {
           wallet: {
@@ -107,7 +107,7 @@ export class WalletController {
       addressId: dappAddress.address.id,
       type: dappAddress.address.type,
       verified: dappAddress.address.verified,
-      dapp: dappAddress.dapp.name,
+      dapp: dappAddress.dapp.publicKey,
       enabled: dappAddress.enabled,
     }));
   }
@@ -225,7 +225,7 @@ export class WalletController {
       console.log('e', e);
       if (e?.message?.includes('Unique constraint failed'))
         throw new HttpException(
-          `Wallet ${publicKey} address already has a dapp address on file for dapp '${dapp.name}'. Use the update dapp address route instead.`,
+          `Wallet ${publicKey} address already has a dapp address on file for dapp '${dapp.publicKey}'. Use the update dapp address route instead.`,
           HttpStatus.BAD_REQUEST,
         );
       throw new HttpException(
@@ -239,7 +239,7 @@ export class WalletController {
       addressId: dappAddress.address.id,
       type: dappAddress.address.type,
       verified: dappAddress.address.verified,
-      dapp: dapp.name,
+      dapp: dapp.publicKey,
       enabled: dappAddress.enabled,
     };
   }
@@ -353,7 +353,7 @@ export class WalletController {
       addressId: dappAddress.address.id,
       type: dappAddress.address.type,
       verified: dappAddress.address.verified,
-      dapp: dappAddress.dapp.name,
+      dapp: dappAddress.dapp.publicKey,
       enabled: dappAddress.enabled,
     };
   }

@@ -4,11 +4,11 @@ async function seedDev() {
   const prisma = new PrismaClient();
   const wallet = await prisma.wallet.upsert({
     where: {
-      publicKey: 'D1ALECTfeCZt9bAbPWtJk7ntv24vDYGPmyS7swp7DY5h',
+      publicKey: '92esmqcgpA7CRCYtefHw2J6h7kQHi8q7pP3QmeTCQp8q',
     },
     create: {
       id: '44a34c33-9938-49f3-935c-dcbf35d1b5a1',
-      publicKey: 'D1ALECTfeCZt9bAbPWtJk7ntv24vDYGPmyS7swp7DY5h',
+      publicKey: '92esmqcgpA7CRCYtefHw2J6h7kQHi8q7pP3QmeTCQp8q',
     },
     update: {},
   });
@@ -31,7 +31,7 @@ async function seedDev() {
     },
     create: {
       id: '44a34c33-9938-49f3-935c-dcbf35d1b5a3',
-      name: 'dialect',
+      publicKey: 'D1ALECTfeCZt9bAbPWtJk7ntv24vDYGPmyS7swp7DY5h',
     },
     update: {},
   });

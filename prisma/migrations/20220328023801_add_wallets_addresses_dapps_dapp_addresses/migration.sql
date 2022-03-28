@@ -26,7 +26,7 @@ CREATE TABLE "dapps" (
     "id" UUID NOT NULL,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "name" TEXT NOT NULL,
+    "public_key" TEXT NOT NULL,
 
     CONSTRAINT "dapps_pkey" PRIMARY KEY ("id")
 );
@@ -50,7 +50,7 @@ CREATE UNIQUE INDEX "wallets_public_key_key" ON "wallets"("public_key");
 CREATE UNIQUE INDEX "Address_walletId_type_unique_constraint" ON "addresses"("walletId", "type");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "dapps_name_key" ON "dapps"("name");
+CREATE UNIQUE INDEX "dapps_public_key_key" ON "dapps"("public_key");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "DappAddress_addressId_dappId_unique_constraint" ON "dapp_addresses"("addressId", "dappId");

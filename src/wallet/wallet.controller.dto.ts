@@ -17,7 +17,7 @@ export class AddressDto {
 
 export class DappAddressDto extends AddressDto {
   readonly addressId!: string;
-  readonly dapp!: string; // e.g. 'friktion'
+  readonly dapp!: string; // e.g. 'D1ALECTfeCZt9bAbPWtJk7ntv24vDYGPmyS7swp7DY5h'
   readonly enabled!: boolean;
 }
 

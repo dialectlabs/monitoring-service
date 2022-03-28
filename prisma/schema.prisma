@@ -56,7 +56,7 @@ model Dapp {
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // columns
-  name String @unique
+  publicKey String @unique @map("public_key")
 
   // relations
   dappAddresses DappAddress[]

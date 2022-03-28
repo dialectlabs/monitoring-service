@@ -106,9 +106,17 @@ export class DappMiddleware implements NestMiddleware {
   constructor(private readonly prisma: PrismaService) {}
   async use(req: RequestScopedDApp, res: Response, next: NextFunction) {
     const dapp = req.params.dapp;
+    try {
+      new PublicKey(dapp);
+    } catch (e: any) {
+      throw new HttpException(
+        `Invalid format dapp public_key ${dapp}, please check your inputs and try again.`,
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const dapp_: Dapp | null = await this.prisma.dapp.findUnique({
       where: {
-        name: dapp,
+        publicKey: dapp,
       },
     });
     if (!dapp_)
