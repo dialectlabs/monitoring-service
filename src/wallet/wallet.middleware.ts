@@ -1,8 +1,10 @@
 import {
+  BadRequestException,
   HttpException,
   HttpStatus,
   Injectable,
   NestMiddleware,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { Dapp } from '@prisma/client';
 import { PublicKey } from '@solana/web3.js';
@@ -34,76 +36,99 @@ export class LoggerMiddleware implements NestMiddleware {
 @Injectable()
 export class AuthMiddleware implements NestMiddleware {
   constructor(private readonly prisma: PrismaService) {}
+
   async use(req: RequestScopedWallet, res: Response, next: NextFunction) {
-    let public_key: PublicKey;
-    try {
-      public_key = new PublicKey(req.params.public_key);
-    } catch (e: any) {
-      throw new HttpException(
-        `Invalid format wallet public_key ${req.params.public_key}, please check your inputs and try again.`,
-        HttpStatus.BAD_REQUEST,
-      );
+    const singerPublicKey = AuthMiddleware.requireValidPublicKey(
+      req.params.public_key,
+    );
+    const authToken = req.headers['authorization'];
+    if (!authToken) {
+      throw new UnauthorizedException('fdsafas');
     }
+    AuthMiddleware.checkTokenValid(authToken, singerPublicKey);
+    req.wallet = await this.upsertWallet(singerPublicKey);
+    next();
+  }
 
-    let expirationTime: number;
-    try {
-      expirationTime = parseInt(
-        (req.headers['authorization'] as string).split('.')[0],
-        10,
-      );
-    } catch (e: any) {
-      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
-    }
-
-    let signature: Uint8Array;
-    try {
-      signature = base64ToUint8(
-        (req.headers['authorization'] as string).split('.')[1] || '',
-      );
-    } catch (e: any) {
-      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
-    }
-
-    const wallet = await this.prisma.wallet.upsert({
+  private upsertWallet(publicKey: PublicKey) {
+    return this.prisma.wallet.upsert({
       where: {
-        publicKey: public_key.toBase58(),
+        publicKey: publicKey.toBase58(),
       },
       create: {
-        publicKey: public_key.toBase58(),
+        publicKey: publicKey.toBase58(),
       },
       update: {},
     });
+  }
 
-    if (!wallet)
-      throw new HttpException(
-        `Invalid wallet public_key ${public_key.toBase58()}. Please check your inputs and try again.`,
-        HttpStatus.UNAUTHORIZED,
+  private static requireValidPublicKey(publicKey: string) {
+    try {
+      return new PublicKey(publicKey);
+    } catch (e: any) {
+      throw new BadRequestException(
+        `Invalid format wallet public_key ${publicKey}, please check your inputs and try again.`,
       );
+    }
+  }
 
+  private static checkTokenValid(
+    authToken: string,
+    signerPublicKey: PublicKey,
+  ) {
+    const expiresAtUtcMs = this.extractExpirationTime(authToken);
+    const signature = this.extractSignature(authToken);
+    this.validateSignature(expiresAtUtcMs, signature, signerPublicKey);
+
+    const nowUtcMs = new Date().getTime();
+    if (expiresAtUtcMs > nowUtcMs) {
+      throw new UnauthorizedException('Token expired');
+    }
+  }
+
+  private static validateSignature(
+    expiresAtUtcMs: number,
+    signature: Uint8Array,
+    signerPublicKey: PublicKey,
+  ) {
     try {
       const dateEncoded = new TextEncoder().encode(
-        btoa(JSON.stringify(expirationTime)),
+        btoa(JSON.stringify(expiresAtUtcMs)),
       );
       const signatureVerified = nacl.sign.detached.verify(
         dateEncoded,
         signature,
-        public_key.toBytes(),
+        signerPublicKey.toBytes(),
       );
       if (!signatureVerified) {
-        throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+        throw new UnauthorizedException('Signature verification failed');
       }
     } catch (e: any) {
-      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+      throw new UnauthorizedException('Signature verification failed');
     }
+  }
 
-    req.wallet = wallet;
-    next();
+  private static extractSignature(authToken: string) {
+    try {
+      return base64ToUint8(authToken.split('.')[1] || '');
+    } catch (e: any) {
+      throw new UnauthorizedException('Signature verification failed');
+    }
+  }
+
+  private static extractExpirationTime(authToken: string) {
+    try {
+      return parseInt(authToken.split('.')[0], 10);
+    } catch (e: any) {
+      throw new UnauthorizedException('Signature verification failed');
+    }
   }
 }
 
 @Injectable()
 export class DappMiddleware implements NestMiddleware {
   constructor(private readonly prisma: PrismaService) {}
+
   async use(req: RequestScopedDApp, res: Response, next: NextFunction) {
     const dapp = req.params.dapp;
     try {
