@@ -370,16 +370,31 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@dialectlabs/monitor@^0.1.21":
-  version "0.1.21"
-  resolved "https://registry.yarnpkg.com/@dialectlabs/monitor/-/monitor-0.1.21.tgz#47d814680b1d0bdd05d76f0972f54fe658dcddac"
-  integrity sha512-4Ik+4cW0Qk7QnnYUNnx+EgWY2m+Izq4ovbPPz//PKMqjihYT7d86ARtfi2/WhjTYPGLquyUJF63eEaxJ2053/A==
+"@dialectlabs/monitor@^1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@dialectlabs/monitor/-/monitor-1.1.0.tgz#e7ab334d453473218db9b20ea886a3b7d4bc7a55"
+  integrity sha512-ndjWXZehltSzk16D3eWjIkNS3y9ACYUu3ufJsOi/ZV70K3Mx9Yow14oXZCG8jGOx6sSE1WpwATdnNncvbbLhvQ==
   dependencies:
     "@dialectlabs/web3" "^0.1.4"
     "@project-serum/anchor" "^0.18.0"
+    "@sendgrid/mail" "^7.6.2"
     "@solana/web3.js" "^1.27.0"
     luxon "^2.3.0"
     rxjs "^7.5.2"
+
+"@dialectlabs/web3@^0.1.11":
+  version "0.1.11"
+  resolved "https://registry.yarnpkg.com/@dialectlabs/web3/-/web3-0.1.11.tgz#63db30d23cd7e612c83d928abb359d53db2ac5ad"
+  integrity sha512-GXpmgrmQRQH1vPcfi3eov2KPw8XXuP4w8eW0YhCphwhClw1DmbBatMScX21G7PNKtJTT1CMvwdlDk3RtHz6NyA==
+  dependencies:
+    "@project-serum/anchor" "0.18.2"
+    "@solana/spl-token" "^0.1.8"
+    "@solana/web3.js" "^1.22.0"
+    bytebuffer "^5.0.1"
+    copy-to-clipboard "^3.3.1"
+    ed2curve "0.3.0"
+    js-sha256 "^0.9.0"
+    tweetnacl "1.0.3"
 
 "@dialectlabs/web3@^0.1.4":
   version "0.1.4"
@@ -870,6 +885,29 @@
     "@solana/web3.js" "^1.30.2"
     assert "^2.0.0"
     buffer "^6.0.1"
+
+"@sendgrid/client@^7.6.2":
+  version "7.6.2"
+  resolved "https://registry.yarnpkg.com/@sendgrid/client/-/client-7.6.2.tgz#5d08949120dad679f34260f1b875b4f57a8d688e"
+  integrity sha512-Yw3i3vPBBwfiIi+4i7+1f1rwQoLlLsu3qW16d1UuRp6RgX6H6yHYb2/PfqwNyCC0qzqIWGUKPWwYe5ggcr5Guw==
+  dependencies:
+    "@sendgrid/helpers" "^7.6.2"
+    axios "^0.26.0"
+
+"@sendgrid/helpers@^7.6.2":
+  version "7.6.2"
+  resolved "https://registry.yarnpkg.com/@sendgrid/helpers/-/helpers-7.6.2.tgz#e4abdd4e259611ed549ae8e0f4a46cd4f587e5d1"
+  integrity sha512-kGW0kM2AOHfXjcvB6Lgwa/nMv8IALu0KyNY9X4HSa3MtLohymuhbG9HgjrOh66+BkbsfA03H3bcT0+sPVJ0GKQ==
+  dependencies:
+    deepmerge "^4.2.2"
+
+"@sendgrid/mail@^7.6.2":
+  version "7.6.2"
+  resolved "https://registry.yarnpkg.com/@sendgrid/mail/-/mail-7.6.2.tgz#118650afbb58be82e3178fa172869d929d937118"
+  integrity sha512-IHHZFvgU95aqb11AevQvAfautj2pb8iW8UCiUJ2ae9pRF37e6EkBmU9NgdFjbQ/8Xhhm+KDVDzn/JLxDN/GiBw==
+  dependencies:
+    "@sendgrid/client" "^7.6.2"
+    "@sendgrid/helpers" "^7.6.2"
 
 "@sinonjs/commons@^1.7.0":
   version "1.8.3"
@@ -1663,6 +1701,13 @@ axios@0.24.0:
   integrity sha512-Q6cWsys88HoPgAaFAVUb0WpPk0O8iTeisR9IMqy9G8AbO4NlpVknrnQS03zzF9PGAWgO3cgletO3VjV/P7VztA==
   dependencies:
     follow-redirects "^1.14.4"
+
+axios@^0.26.0:
+  version "0.26.1"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.26.1.tgz#1ede41c51fcf51bbbd6fd43669caaa4f0495aaa9"
+  integrity sha512-fPwcX4EvnSHuInCMItEhAGnaSEXRBjtzh9fOtsE6E1G6p7vl7edEeZe11QHf18+6+9gR5PbKV/sGKNaD8YaMeA==
+  dependencies:
+    follow-redirects "^1.14.8"
 
 babel-jest@^27.5.0:
   version "27.5.0"
@@ -2923,6 +2968,11 @@ follow-redirects@^1.14.4:
   version "1.14.7"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.7.tgz#2004c02eb9436eee9a21446a6477debf17e81685"
   integrity sha512-+hbxoLbFMbRKDwohX8GkTataGqO6Jb7jGwpAlwgy2bIz25XtRm7KEzJM76R1WiNT5SwZkX4Y75SwBolkpmE7iQ==
+
+follow-redirects@^1.14.8:
+  version "1.14.9"
+  resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.9.tgz#dd4ea157de7bfaf9ea9b3fbd85aa16951f78d8d7"
+  integrity sha512-MQDfihBQYMcyy5dhRDJUHcw7lb2Pv/TuE6xP1vyraLukNDHKbDxDNaOE3NbCAdKQApno+GPRyo1YAp89yCjK4w==
 
 foreach@^2.0.5:
   version "2.0.5"
