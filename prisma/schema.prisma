@@ -12,7 +12,7 @@ datasource db {
 
 model Wallet {
   // generic columns
-  id String @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
@@ -28,30 +28,30 @@ model Wallet {
 
 model Address {
   // generic columns
-  id String @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
   // columns
-  type String // e.g. 'email', 'telegram', 'sms', etc. TODO: Make this an enum, perhaps only at the server level, not db
-  value String // e.g. 'chris@dialect.to', '@chrisoss', etc.
+  type     String // e.g. 'email', 'telegram', 'sms', etc. TODO: Make this an enum, perhaps only at the server level, not db
+  value    String // e.g. 'chris@dialect.to', '@chrisoss', etc.
   verified Boolean @default(false)
 
   // relations
-  walletId String @db.Uuid
-  wallet Wallet @relation(fields: [walletId], references: [id])
+  walletId      String        @map("wallet_id") @db.Uuid
+  wallet        Wallet        @relation(fields: [walletId], references: [id])
   dappAddresses DappAddress[]
 
   // constraints
-  @@unique([walletId, type], map: "Address_walletId_type_unique_constraint")
 
   // meta
+  @@unique([walletId, type])
   @@map("addresses")
 }
 
 model Dapp {
   // generic columns
-  id String @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
@@ -67,7 +67,7 @@ model Dapp {
 
 model DappAddress {
   // generic columns
-  id String @id @default(uuid()) @db.Uuid
+  id        String   @id @default(uuid()) @db.Uuid
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
 
@@ -75,14 +75,14 @@ model DappAddress {
   enabled Boolean
 
   // relations
-  addressId String @db.Uuid
-  address Address @relation(fields: [addressId], references: [id])
-  dappId String @db.Uuid
-  dapp Dapp @relation(fields: [dappId], references: [id])
+  addressId String  @map("address_id") @db.Uuid
+  address   Address @relation(fields: [addressId], references: [id])
+  dappId    String  @map("dapp_id") @db.Uuid
+  dapp      Dapp    @relation(fields: [dappId], references: [id])
 
   // constraints
-  @@unique([addressId, dappId], map: "DappAddress_addressId_dappId_unique_constraint")
 
   // meta
+  @@unique([addressId, dappId])
   @@map("dapp_addresses")
 }

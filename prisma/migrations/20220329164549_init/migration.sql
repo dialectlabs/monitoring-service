@@ -16,7 +16,7 @@ CREATE TABLE "addresses" (
     "type" TEXT NOT NULL,
     "value" TEXT NOT NULL,
     "verified" BOOLEAN NOT NULL DEFAULT false,
-    "walletId" UUID NOT NULL,
+    "wallet_id" UUID NOT NULL,
 
     CONSTRAINT "addresses_pkey" PRIMARY KEY ("id")
 );
@@ -37,8 +37,8 @@ CREATE TABLE "dapp_addresses" (
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "enabled" BOOLEAN NOT NULL,
-    "addressId" UUID NOT NULL,
-    "dappId" UUID NOT NULL,
+    "address_id" UUID NOT NULL,
+    "dapp_id" UUID NOT NULL,
 
     CONSTRAINT "dapp_addresses_pkey" PRIMARY KEY ("id")
 );
@@ -47,19 +47,19 @@ CREATE TABLE "dapp_addresses" (
 CREATE UNIQUE INDEX "wallets_public_key_key" ON "wallets"("public_key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Address_walletId_type_unique_constraint" ON "addresses"("walletId", "type");
+CREATE UNIQUE INDEX "addresses_wallet_id_type_key" ON "addresses"("wallet_id", "type");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "dapps_public_key_key" ON "dapps"("public_key");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "DappAddress_addressId_dappId_unique_constraint" ON "dapp_addresses"("addressId", "dappId");
+CREATE UNIQUE INDEX "dapp_addresses_address_id_dapp_id_key" ON "dapp_addresses"("address_id", "dapp_id");
 
 -- AddForeignKey
-ALTER TABLE "addresses" ADD CONSTRAINT "addresses_walletId_fkey" FOREIGN KEY ("walletId") REFERENCES "wallets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "addresses" ADD CONSTRAINT "addresses_wallet_id_fkey" FOREIGN KEY ("wallet_id") REFERENCES "wallets"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "dapp_addresses" ADD CONSTRAINT "dapp_addresses_addressId_fkey" FOREIGN KEY ("addressId") REFERENCES "addresses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "dapp_addresses" ADD CONSTRAINT "dapp_addresses_address_id_fkey" FOREIGN KEY ("address_id") REFERENCES "addresses"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "dapp_addresses" ADD CONSTRAINT "dapp_addresses_dappId_fkey" FOREIGN KEY ("dappId") REFERENCES "dapps"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "dapp_addresses" ADD CONSTRAINT "dapp_addresses_dapp_id_fkey" FOREIGN KEY ("dapp_id") REFERENCES "dapps"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
