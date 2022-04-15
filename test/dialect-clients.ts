@@ -31,6 +31,11 @@ const createClients = async (n: number): Promise<void> => {
   const clients = Array(n)
     .fill(0)
     .map((it) => web3.Keypair.generate());
+
+  // TO TEST with your own keypair,
+  // comment out the clients array above, and use instead the following line:
+  //const clients = Array(web3.Keypair.fromSecretKey(new Uint8Array([/* Your keypair */])));
+  
   const wallet = Wallet_.embedded(clients[0].secretKey);
   // configure anchor
   anchor.setProvider(
@@ -112,7 +117,6 @@ const createClients = async (n: number): Promise<void> => {
             const dialectAccount = await getDialectForMembers(
               program,
               members,
-              owner,
             );
             return [
               dialectAccount.publicKey.toString(),
