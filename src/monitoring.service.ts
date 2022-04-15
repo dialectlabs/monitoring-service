@@ -17,6 +17,9 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
       pipelines: [Pipelines.notifyNewSubscribers()],
     })
     .notify()
+    .dialectThread(({ value }) => ({
+      message: `Say hello to the future of web3 messaging.`,
+    }))
     .and()
     .dispatch('unicast')
     .build();
