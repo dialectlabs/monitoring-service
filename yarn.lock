@@ -370,10 +370,10 @@
   dependencies:
     "@cspotcode/source-map-consumer" "0.8.0"
 
-"@dialectlabs/monitor@^1.2.10":
-  version "1.2.10"
-  resolved "https://registry.yarnpkg.com/@dialectlabs/monitor/-/monitor-1.2.10.tgz#eb6a74d5d447293f8cc5c9dc31779b72fb0fb902"
-  integrity sha512-p21IxvChkS5SQzqU+gu91DJSs55Ob9KTlBfoLcX9U6Lh3SwZ8T0jg3RFuS6AAl0H+kRvsAsXcrysfGkCzZxTMA==
+"@dialectlabs/monitor@^1.2.11":
+  version "1.2.11"
+  resolved "https://registry.yarnpkg.com/@dialectlabs/monitor/-/monitor-1.2.11.tgz#8c2978569f2011d933aeebd7006fa8d26c99588b"
+  integrity sha512-DRWfHoPIGzEw0E5I+y8HhVCIz/s8+9FHI2VnvQRUjGSqwcfPhI9IHtykOIlQc7SMV4npz2oEt+Yc6CDhGjwtnw==
   dependencies:
     "@dialectlabs/web3" "^0.2.0"
     "@project-serum/anchor" "0.23.0"
