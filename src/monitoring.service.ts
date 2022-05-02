@@ -18,7 +18,7 @@ export class MonitoringService implements OnModuleInit, OnModuleDestroy {
         },
         email: {
           apiToken: process.env.SENDGRID_KEY!,
-          senderEmaiwl: process.env.SENDGRID_EMAIL!,
+          senderEmail: process.env.SENDGRID_EMAIL!,
         },
         telegram: {
           telegramBotToken: process.env.TELEGRAM_TOKEN!,
