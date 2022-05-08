@@ -14,7 +14,7 @@ export abstract class DialectConnection {
     );
     const wallet = Wallet_.embedded(keypair.secretKey);
     const RPC_URL = process.env.RPC_URL || 'http://localhost:8899';
-    console.log('RPC url', RPC_URL);
+    console.log('RPC url:                 ', RPC_URL);
     const dialectConnection = new Connection(RPC_URL, 'recent');
     const dialectProvider = new Provider(
       dialectConnection,
@@ -24,8 +24,10 @@ export abstract class DialectConnection {
     // @ts-ignore
     const NETWORK_NAME: 'devnet' | 'localnet' =
       process.env.NETWORK_NAME ?? 'localnet';
-    console.log('Network name', NETWORK_NAME);
+    console.log('Solana network name:     ', NETWORK_NAME);
     const DIALECT_PROGRAM_ADDRESS = programs[NETWORK_NAME].programAddress;
+    console.log('Dialect program address: ', DIALECT_PROGRAM_ADDRESS);
+    console.log('Dapp public key:         ', keypair.publicKey.toBase58());
     const program = new Program(
       idl as Idl,
       new PublicKey(DIALECT_PROGRAM_ADDRESS),
