@@ -22,10 +22,13 @@ export abstract class DialectConnection {
       Provider.defaultOptions(),
     );
     // @ts-ignore
-    const NETWORK_NAME: 'devnet' | 'localnet' =
-      process.env.NETWORK_NAME ?? 'localnet';
+    const NETWORK_NAME: 'mainnet-beta' | 'devnet' | 'localnet' =
+      process.env.NETWORK_NAME || 'localnet';
+
+    const network_key: 'mainnet' | 'devnet' | 'localnet' =
+      NETWORK_NAME === 'mainnet-beta' ? 'mainnet' : NETWORK_NAME;
     console.log('Network name', NETWORK_NAME);
-    const DIALECT_PROGRAM_ADDRESS = programs[NETWORK_NAME].programAddress;
+    const DIALECT_PROGRAM_ADDRESS = programs[network_key].programAddress;
     const program = new Program(
       idl as Idl,
       new PublicKey(DIALECT_PROGRAM_ADDRESS),
